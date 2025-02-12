@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
+
 <head>
     <!-- Meta Tags -->
     <meta charset="utf-8">
@@ -7,17 +8,29 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Title -->
-    {{-- <title>@yield('title') &mdash; Laravel - Stisla</title> --}}
+    <title>@yield('title') &mdash; Dashboard</title>
 
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <!-- General CSS Files -->
+    <link rel="stylesheet" href="{{ asset('modules/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/fontawesome/css/all.min.css') }}">
 
-    <!-- Bootstrap CSS (Bootstrap 4) -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <!-- Font Awesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="{{ asset('modules/jqvmap/dist/jqvmap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/weather-icon/css/weather-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/weather-icon/css/weather-icons-wind.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/summernote/summernote-bs4.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/datatables/datatables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/izitoast/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/bootstrap-daterangepicker/daterangepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/jquery-selectric/selectric.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
+    <link rel="seylesheet" href="{{ asset('modules/bootstrap-social/bootstrap-social.css') }}"
 
     <!-- Custom CSS Files -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -28,36 +41,72 @@
     <!-- Additional CSS (if any) -->
     @stack('css')
 </head>
+
 <body>
     <div id="app">
         <div class="main-wrapper">
+            <div class="navbar-bg"></div>
+            @include('layouts.header')
+
             @include('layouts.sidebar')
-            <!-- Header -->
-            {{-- @include('components.header')
 
-            <!-- Sidebar -->
-            @include('components.sidebar') --}}
-
-            <!-- Main Content -->
             <div class="main-content">
-                @yield('content')
+                <section class="section">
+                    <div class="section-header">
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <h1>@yield('subtitle')</h1>
+                        </div>
+                    </div>
+                    @yield('content')
+                </section>
             </div>
 
-            <!-- Footer -->
-            {{-- @include('components.footer') --}}
+            @include('layouts.footer')
+            
         </div>
     </div>
 
-    <!-- jQuery and Popper.js (required for Bootstrap 4) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    @stack('modals')
 
-    <!-- Bootstrap JS (Bootstrap 4) -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <<!-- General JS Scripts -->
+    <script src="{{ asset('modules/jquery.min.js') }}"></script>
+    <script src="{{ asset('modules/jquery-ui/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('modules/popper.js') }}"></script>
+    <script src="{{ asset('modules/tooltip.js') }}"></script>
+    <script src="{{ asset('modules/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('modules/nicescroll/jquery.nicescroll.min.js') }}"></script>
+    <script src="{{ asset('modules/moment.min.js') }}"></script>
+    <script src="{{ asset('js/stisla.js') }}"></script>
+    <script src="{{ asset('modules/bootbox/bootbox.min.js') }}"></script>
+    <script src="{{ asset('modules/jquery.blockUI.js') }}"></script>
 
-    <!-- Custom JS Libraries -->
-    <script src="{{ asset('library/jquery.nicescroll/dist/jquery.nicescroll.min.js') }}"></script>
-    <script src="{{ asset('library/moment/min/moment.min.js') }}"></script>
+    <!-- JS Libraries -->
+    <script src="{{ asset('modules/simple-weather/jquery.simpleWeather.min.js') }}"></script>
+    <script src="{{ asset('modules/chart.min.js') }}"></script>
+    <script src="{{ asset('modules/jqvmap/dist/jquery.vmap.min.js') }}"></script>
+    <script src="{{ asset('modules/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
+    <script src="{{ asset('modules/summernote/summernote-bs4.js') }}"></script>
+    <script src="{{ asset('modules/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
+    <script src="{{ asset('modules/datatables/datatables.min.js') }}"></script>
+    <script src="{{ asset('modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('modules/datatables/Select-1.2.4/js/dataTables.select.min.js') }}"></script>
+    <script src="{{ asset('modules/izitoast/js/iziToast.min.js') }}"></script>
+    <script src="{{ asset('modules/sweetalert/sweetalert.min.js') }}"></script>
+    <script src="{{ asset('modules/select2/dist/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('modules/jquery-selectric/jquery.selectric.min.js') }}"></script>
+    <script src="{{ asset('modules/cleave-js/dist/cleave.min.js') }}"></script>
+    <script src="{{ asset('modules/cleave-js/dist/addons/cleave-phone.us.js') }}"></script>
+    <script src="{{ asset('modules/jquery-pwstrength/jquery.pwstrength.min.js') }}"></script>
+    <script src="{{ asset('modules/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
+    <script src="{{ asset('modules/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
+    <script src="{{ asset('modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
+
+
+    <!-- Page Specific JS File -->
+    <script src="{{ asset('js/page/index-0.js') }}"></script>
+    <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
+    <script src="{{ asset('js/build.js') }}"></script>
 
     <!-- Template JS Files -->
     <script src="{{ asset('js/stisla.js') }}"></script>
