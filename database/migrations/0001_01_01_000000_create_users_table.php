@@ -14,11 +14,17 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('username');
-            $table->string('email')->unique();
-            $table->enum('role', ['admin', 'petugas'])->default('petugas');
-            $table->string('password');
+            $table->string('email')->unique()->nullable();
+            $table->string('password')->nullable();
+            $table->enum('role', ['admin', 'petugas', 'pelanggan']);
+            $table->enum('tipe', ['1', '2', '3'])->nullable();
+            $table->integer('points')->default(0)->nullable();
+            $table->integer('no_telp')->nullable();
+            $table->text('alamat')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

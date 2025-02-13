@@ -21,7 +21,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::resource('/barang', BarangController::class);
 
-        Route::resource('/pelanggan', PelangganController::class);
     });
 
     Route::middleware('role:admin,petugas')->group(function () {

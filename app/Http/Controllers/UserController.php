@@ -57,13 +57,13 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User berhasil dibuat.');
     }
 
-    // /**
-    //  * Display the specified resource.
-    //  */
-    // public function show(User $user)
-    // {
-    //     return view('users.show', compact('user'));
-    // }
+    /**
+     * Display the specified resource.
+     */
+    public function show(User $user)
+    {
+        return view('users.show', compact('user'));
+    }
 
     /**
      * Show the form for editing the specified resource.
