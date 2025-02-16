@@ -2,63 +2,108 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pelanggan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class PelangganController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $pelanggans = Pelanggan::all();
+        return view('pelanggan.index', compact('pelanggans'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(),[
+            'nama'    => 'required|string|max:100',
+            'telepon' => 'nullable|string|max:15',
+            'alamat'  => 'nullable|string',
+            'tipe'    => 'required|in:Umum,Loyal,VIP',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+                'message' => 'Validasi gagal'
+            ], 422);
+        }
+
+        $poin = $request->tipe === 'Umum' ? null : 0;
+
+        Pelanggan::create([
+            'nama'       => $request->nama,
+            'telepon'    => $request->telepon,
+            'alamat'     => $request->alamat,
+            'tipe'       => $request->tipe,
+            'poin'       => $poin,
+            'created_by' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => 'Pelanggan berhasil ditambahkan!'
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Pelanggan $pelanggan)
     {
-        //
+        return response()->json([
+            'id'         => $pelanggan->id,
+            'nama'       => $pelanggan->nama ?? '-',
+            'telepon'    => $pelanggan->telepon ?? '-',
+            'alamat'     => $pelanggan->alamat ?? '-',
+            'tipe'       => $pelanggan->tipe ?? '-',
+            'poin'       => $pelanggan->poin ?? '-',
+            'created_at' => $pelanggan->created_at ? $pelanggan->created_at->format('Y-m-d H:i:s'): '-' ,
+            'creator'    => $pelanggan->creator ? $pelanggan->creator->username : '-', //??
+            'updated_at' => $pelanggan->updated_at ? $pelanggan->updated_at->format('Y-m-d H:i:s'): '-',
+            'updater'    => $pelanggan->updater ? $pelanggan->updater->username : '-', //??
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Pelanggan $pelanggan)
     {
-        //
+        return response()->json($pelanggan);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Pelanggan $pelanggan)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'nama'    => 'required|string|max:100',
+            'telepon' => 'nullable|string|max:15',
+            'alamat'  => 'nullable|string',
+            'tipe'    => 'required|in:Umum,Loyal,VIP',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+                'message' => 'Validasi gagal'
+            ], 422);
+        }
+
+        $poin = $request->tipe === 'Umum' ? null : 0;
+
+        $pelanggan->update([
+            'nama'    => $request->nama,
+            'telepon' => $request->telepon,
+            'alamat'  => $request->alamat,
+            'tipe'    => $request->tipe,
+            'poin'    => $poin,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => 'Pelanggan berhasil diubah!'
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Pelanggan $pelanggan)
     {
-        //
-    }
+        $pelanggan->delete();
+        return response()->json([
+            'success' => 'Pelanggan berhasil dihapus!'
+        ]);    }
 }

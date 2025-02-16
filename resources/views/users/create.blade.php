@@ -14,15 +14,15 @@
                             @csrf
                             <div class="form-group">
                                 <label for="username">Username</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
+                                <input type="text" class="form-control" id="username" name="username">
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <input type="email" class="form-control" id="email" name="email">
                             </div>
                             <div class="form-group">
                                 <label for="role">Role</label>
-                                <select class="form-control" id="role" name="role" required>
+                                <select class="form-control" id="role" name="role">
                                     <option value="petugas" selected>Petugas</option>
                                     <option value="admin">Admin</option>
                                 </select>
@@ -56,7 +56,7 @@
                             </div>
                         </div>
                     </div>
-            </div>
+                </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary">Create</button>
@@ -67,153 +67,173 @@
 </div>
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            // Reset form dan error saat modal ditutup
-            $('#createUserModal').on('hidden.bs.modal', function() {
-                $('#createUserForm').trigger('reset');
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').remove();
-            });
-
-            $('#createUserForm').submit(function(e) {
-                e.preventDefault();
-                const form = $(this);
-                const formData = form.serialize();
-                const url = form.attr('action');
-
-                swal({
-                    title: "Konfirmasi",
-                    text: "Apakah data yang dimasukkan sudah benar?",
-                    icon: "info",
-                    buttons: true,
-                }).then((confirm) => {
-                    if (confirm) {
-                        processFormSubmission(form, url, formData);
-                    }
-                });
-            });
-
-            function processFormSubmission(form, url, formData) {
-                // Validasi client-side
-                if (!validateForm()) return;
-
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: formData,
-                    beforeSend: function() {
-                        form.find('button[type="submit"]').prop('disabled', true).html('Menyimpan...');
-                    },
-                    success: function(response) {
-                        $('#createUserModal').modal('hide');
-                        iziToast.success({
-                            title: 'Sukses',
-                            message: response.success,
-                            position: 'topRight',
-                            timeout: 2000
-                        });
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    },
-                    error: function(xhr) {
-                        form.find('button[type="submit"]').prop('disabled', false).html('Simpan');
-
-                        if (xhr.status === 422) {
-                            handleValidationErrors(xhr.responseJSON.errors);
-                        } else {
-                            iziToast.error({
-                                title: 'Error',
-                                message: xhr.responseJSON.message || 'Terjadi kesalahan sistem',
-                                position: 'topRight'
-                            });
-                        }
-                    }
-                });
-            }
-
-            function validateForm() {
-                let isValid = true;
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-                // Reset error state
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').remove();
-
-                // Validasi tiap field
-                $('#username').each(function() {
-                    if ($(this).val().trim() === '') {
-                        showError($(this), 'Username wajib diisi');
-                        isValid = false;
-                    }
-                });
-
-                $('#email').each(function() {
-                    const value = $(this).val().trim();
-                    if (value === '') {
-                        showError($(this), 'Email wajib diisi');
-                        isValid = false;
-                    } else if (!emailRegex.test(value)) {
-                        showError($(this), 'Format email tidak valid');
-                        isValid = false;
-                    }
-                });
-
-                $('#password').each(function() {
-                    const value = $(this).val();
-                    if (value === '') {
-                        showError($(this), 'Password wajib diisi');
-                        isValid = false;
-                    } else if (!passwordRegex.test(value)) {
-                        showError($(this), 'Minimal 8 karakter dengan 1 huruf besar & angka');
-                        isValid = false;
-                    }
-                });
-
-                $('#password_confirmation').each(function() {
-                    if ($(this).val() !== $('#password').val()) {
-                        showError($(this), 'Konfirmasi password tidak cocok');
-                        isValid = false;
-                    }
-                });
-
-                return isValid;
-            }
-
-            function handleValidationErrors(errors) {
-                for (const field in errors) {
-                    const input = $(`#${field}`);
-                    showError(input, errors[field][0]);
-                }
-            }
-
-            function showError(input, message) {
-                input.addClass('is-invalid');
-                input.after(`<div class="invalid-feedback d-block">${message}</div>`);
-                // Scroll ke error pertama
-                $('html, body').animate({
-                    scrollTop: input.offset().top - 100
-                }, 500);
-            }
+<script> //validasi form
+    $(document).ready(function() {
+        $('#createUserModal').on('hidden.bs.modal', function() {
+            $('#createUserForm').trigger('reset');
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
         });
-    </script>
-    <script>
-        function togglePassword(inputId, iconId) {
-            let passwordInput = document.getElementById(inputId);
-            let icon = document.getElementById(iconId);
 
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                icon.classList.remove("fa-eye");
-                icon.classList.add("fa-eye-slash");
-            } else {
-                passwordInput.type = "password";
-                icon.classList.remove("fa-eye-slash");
-                icon.classList.add("fa-eye");
+        $('#createUserForm').submit(function(e) {
+            e.preventDefault();
+            const form = $(this);
+
+            // Validasi client-side
+            if (!validateForm()){
+                return;
+            } 
+
+            const formData = form.serialize();
+            const url = form.attr('action');
+
+            swal({
+                title: "Konfirmasi",
+                text: "Apakah data yang dimasukkan sudah benar?",
+                icon: "info",
+                buttons: true,
+            }).then((confirm) => {
+                if (confirm) {
+                    processFormSubmission(form, url, formData);
+                }
+            });
+        });
+
+        function processFormSubmission(form, url, formData) {
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                beforeSend: function() {
+                    form.find('button[type="submit"]').prop('disabled', true).html('Menyimpan...');
+                },
+                success: function(response) {
+                    $('#createUserModal').modal('hide');
+                    iziToast.success({title: 'Sukses', message: response.success, position: 'topRight',});
+                    reloadUserTable();
+                },
+                error: function(xhr) {
+                    form.find('button[type="submit"]').prop('disabled', false).html('Simpan');
+
+                    if (xhr.status === 422) {
+                        handleValidationErrors(xhr.responseJSON.errors);
+                    } else {
+                        iziToast.error({title: 'Error', message: xhr.responseJSON.message || 'Terjadi kesalahan sistem', position: 'topRight'});
+                    }
+                }
+            });
+        }
+
+        function validateForm() {
+            let isValid = true;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+            // Reset error state
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
+
+            // Validasi tiap field
+            $('#username').each(function() {
+                if ($(this).val().trim() === '') {
+                    console.log('Validasi gagal: Username kosong.');
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Username wajib diisi',
+                        position: 'topRight'
+                    });
+                    showError($(this), 'Username wajib diisi');
+                    isValid = false;
+                }else {
+                console.log('Username valid:', $(this).val());
+                }
+            });
+
+            $('#email').each(function() {
+                const value = $(this).val().trim();
+                if (value === '') {
+                    console.log('Validasi gagal: Email kosong.');
+                    iziToast.error({
+              title: 'Error',
+              message: 'Email wajib diisi',
+              position: 'topRight'
+            });
+                    showError($(this), 'Email wajib diisi');
+                    isValid = false;
+                } else if (!emailRegex.test(value)) {
+                    console.log('Validasi gagal: Format email tidak valid:', value);
+                    iziToast.error({
+              title: 'Error',
+              message: 'Format email tidak valid',
+              position: 'topRight'
+            });
+                    showError($(this), 'Format email tidak valid');
+                    isValid = false;
+                }else {
+                console.log('Email valid:', value);
+                }
+            });
+
+            $('#password').each(function() {
+                const value = $(this).val();
+                if (value === '') {
+                    console.log('Validasi gagal: Password kosong.');
+                    iziToast.error({
+              title: 'Error',
+              message: 'Password wajib diisi',
+              position: 'topRight'
+            });
+                    showError($(this), 'Password wajib diisi');
+                    isValid = false;
+                } else if (!passwordRegex.test(value)) {
+                    console.log('Validasi gagal: Password tidak memenuhi kriteria:', value);
+                    iziToast.error({
+              title: 'Error',
+              message: 'Minimal 8 karakter dengan 1 huruf $ angka',
+              position: 'topRight'
+            });
+                    showError($(this), 'Minimal 8 karakter dengan 1 huruf besar & angka');
+                    isValid = false;
+                }else {
+                console.log('Password valid.');
+                }   
+            });
+
+            $('#password_confirmation').each(function() {
+                if ($(this).val() !== $('#password').val()) {
+                    console.log('Validasi gagal: Konfirmasi password tidak cocok.');
+                    iziToast.error({
+              title: 'Error',
+              message: 'Konfirmasi password tidak cocok',
+              position: 'topRight'
+            });
+                    showError($(this), 'Konfirmasi password tidak cocok');
+                    isValid = false;
+                }else {
+                console.log('Konfirmasi password cocok.');
+                }
+            });
+
+            console.log('Validasi form selesai. isValid:', isValid);
+            return isValid;
+        }
+
+        function handleValidationErrors(errors) {
+            for (const field in errors) {
+                const input = $(`#${field}`);
+                console.log(`Error validasi pada field ${field}:`, errors[field][0]);
+                showError(input, errors[field][0]);
             }
         }
-    </script>
+
+        function showError(input, message) {
+            input.addClass('is-invalid');
+            input.after(`<div class="invalid-feedback d-block">${message}</div>`);
+            // Scroll ke error pertama
+            $('html, body').animate({
+                scrollTop: input.offset().top - 100
+            }, 500);
+        }
+    });
+</script>
 @endpush

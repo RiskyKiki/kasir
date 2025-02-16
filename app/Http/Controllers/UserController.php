@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -19,8 +20,8 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'role' => 'required|in:admin,petugas',
+            'email'    => 'required|email|unique:users,email',
+            'role'     => 'required|in:admin,petugas',
             'password' => 'required|min:8|confirmed',
         ]);
 
@@ -32,10 +33,10 @@ class UserController extends Controller
         }
 
         User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'role' => $request->role,
-            'password' => Hash::make($request->password),
+            'username'   => $request->username,
+            'email'      => $request->email,
+            'role'       => $request->role,
+            'password'   => Hash::make($request->password),
             'created_by' => Auth::id(),
         ]);
 
@@ -44,10 +45,23 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(User $user)
+    {
+        return response()->json([
+            'id'         => $user->id,
+            'username'   => $user->username ?? '-',
+            'email'      => $user->email ?? '-',
+            'role'       => $user->role ?? '-',
+            'created_at' => $user->created_at ? $user->created_at->format('Y-m-d H:i:s') : '-',
+            'creator'    => $user->creator ? $user->creator->username : '-',
+            'updated_at' => $user->updated_at ? $user->updated_at->format('Y-m-d H:i:s') : '-',
+            'updater'    =>  $user->updater ? $user->updater->username : '-',
+        ]);
+    }
+
     public function edit(User $user)
     {
         return response()->json($user);
-
     }
 
 
@@ -55,20 +69,23 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,petugas',
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'role'     => 'required|in:admin,petugas',
             'password' => 'nullable|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'errors' => $validator->errors(),
+                'message' => 'Validasi gagal'
+            ], 422);
         }
 
         $user->update([
-            'username' => $request->username,
-            'email' => $request->email,
-            'role' => $request->role,
-            'password' => $request->password ? Hash::make($request->password) : $user->password,
+            'username'   => $request->username,
+            'email'      => $request->email,
+            'role'       => $request->role,
+            'password'   => $request->password ? Hash::make($request->password) : $user->password,
             'updated_by' => Auth::id(),
         ]);
 
@@ -77,27 +94,14 @@ class UserController extends Controller
         ]);
     }
 
-        public function destroy(User $user)
-        {
-            if ($user->id === Auth::id()) {
-                return redirect()->back()->with('error', 'Tidak dapat menghapus akun sendiri!');
-            }
-            
-            $user->delete();
-            return redirect()->route('users.index')->with('success', 'User berhasil dihapus!');
+    public function destroy(User $user)
+    {
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'Tidak dapat menghapus akun sendiri!');
         }
 
-    public function show(User $user)
-    {
+        $user->delete();
         return response()->json([
-            'id' => $user->id,  
-            'username' => $user->username,
-            'email' => $user->email,
-            'role' => $user->role,
-            'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-            'creator' => $user->creator ? $user->creator->username : '-',
-            'updated_at' => $user->updated_at->format('Y-m-d H:i:s'),
-            'updater' => $user->updater ? $user->updater->username : '-',
-        ]); 
-    }
+            'success' => 'User berhasil dihapus!'
+        ]);    }
 }

@@ -16,11 +16,15 @@
                 @if (Auth::user()->role == 'admin')
                 <li class="menu-header">Khusus Admin</li>
                     <li class="{{ request()->routeIs('users.index') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('users.index') }}"><i class="far fa-user"></i><span>User</span></a>
+                        <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-user"></i><span>User</span></a>
+                    </li>
+                    <li class="{{ request()->routeIs('pelanggan.index') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('pelanggan.index')}}"><i class="fas fa-users"></i><span>Pelanggan</span></a>
                     </li>
                     <li class="{{ request()->routeIs('barang.index') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('barang.index') }}"><i class="fas fa-table"></i><span>Barang</span></a>
                     </li>
+
                 @endif
                 <li class="menu-header">Khusus Petugas</li>
                 <li class="{{ request()->routeIs('transaksi.index') ? 'active' : '' }}">

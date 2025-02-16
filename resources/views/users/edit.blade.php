@@ -1,4 +1,5 @@
-<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel"aria-hidden="true">
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog"
+    aria-labelledby="editUserModalLabel"aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -33,9 +34,11 @@
                             <div class="form-group">
                                 <label for="password">Password (Opsional)</label>
                                 <div class="input-group">
-                                    <input type="password" id="password" name="password" class="form-control" placeholder="Kosongkan jika tidak merubah password">
+                                    <input type="password" id="password" name="password" class="form-control"
+                                        placeholder="Kosongkan jika tidak merubah password">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn" onclick="togglePassword('password', 'togglePasswordIcon')">
+                                        <button type="button" class="btn"
+                                            onclick="togglePassword('password', 'togglePasswordIcon')">
                                             <i id="togglePasswordIcon" class="fa fa-eye"></i>
                                         </button>
                                     </div>
@@ -44,9 +47,11 @@
                             <div class="form-group">
                                 <label for="password_confirmation">Konfirmasi Password</label>
                                 <div class="input-group">
-                                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="Kosongkan jika tidak mengisi password">
+                                    <input type="password" id="password_confirmation" name="password_confirmation"
+                                        class="form-control" placeholder="Kosongkan jika tidak mengisi password">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn" onclick="togglePassword('password_confirmation', 'toggleConfirmPasswordIcon')">
+                                        <button type="button" class="btn"
+                                            onclick="togglePassword('password_confirmation', 'toggleConfirmPasswordIcon')">
                                             <i id="toggleConfirmPasswordIcon" class="fa fa-eye"></i>
                                         </button>
                                     </div>
@@ -65,10 +70,9 @@
 </div>
 
 @push('scripts')
-    <script>
+    <script> //validasi form
         $(document).ready(function() {
             console.log("Script editUserForm loaded");
-
             // Reset form saat modal ditutup
             $('#editUserModal').on('hidden.bs.modal', function() {
                 console.log("Modal editUserModal ditutup, reset form");
@@ -122,17 +126,8 @@
                         console.log("AJAX request sukses:", response);
 
                         $('#editUserModal').modal('hide');
-                        iziToast.success({
-                            title: 'Sukses',
-                            message: response.success,
-                            position: 'topRight',
-                            timeout: 2000
-                        });
-
-                        setTimeout(() => {
-                            console.log("Refresh halaman setelah update");
-                            window.location.reload();
-                        }, 1500);
+                        iziToast.success({title: 'Sukses', message: response.success, position: 'topRight',});
+                        reloadUserTable()
                     },
                     error: function(xhr) {
                         console.log("AJAX request error:", xhr);
@@ -145,11 +140,7 @@
                             handleValidationErrors(xhr.responseJSON.errors);
                         } else {
                             console.log("Kesalahan sistem:", xhr.responseJSON.message);
-                            iziToast.error({
-                                title: 'Error',
-                                message: xhr.responseJSON.message || 'Terjadi kesalahan sistem',
-                                position: 'topRight'
-                            });
+                            iziToast.error({title: 'Error', message: xhr.responseJSON.message ||'Terjadi kesalahan sistem', position: 'topRight'});
                         }
                     }
                 });
@@ -183,41 +174,5 @@
                 input.after(`<div class="invalid-feedback d-block">${message}</div>`);
             }
         });
-    </script>
-    <script>
-        function editUser(userId) {
-            console.log(`Mengedit user dengan ID: ${userId}`);
-
-            $.get('/users/' + userId + '/edit', function(response) {
-                console.log("Data user berhasil diambil:", response);
-
-                const form = $('#editUserForm');
-                form.attr('action', '/users/' + userId);
-                $('#edit_username').val(response.username);
-                $('#edit_email').val(response.email);
-                $('#edit_role').val(response.role);
-                $('#edit_password').val('');
-                $('#edit_password_confirmation').val('');
-                $('#editUserModal').modal('show');
-            }).fail(function(xhr) {
-                console.log("Gagal mengambil data user:", xhr);
-            });
-        }
-    </script>
-    <script>
-        function togglePassword(inputId, iconId) {
-            let passwordInput = document.getElementById(inputId);
-            let icon = document.getElementById(iconId);
-
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                icon.classList.remove("fa-eye");
-                icon.classList.add("fa-eye-slash");
-            } else {
-                passwordInput.type = "password";
-                icon.classList.remove("fa-eye-slash");
-                icon.classList.add("fa-eye");
-            }
-        }
     </script>
 @endpush
