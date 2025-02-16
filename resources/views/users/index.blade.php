@@ -1,167 +1,142 @@
-@extends('layouts.app')
+        @extends('layouts.app')
 
-@section('title', 'User')
+        @section('title', 'User')
 
-@section('subtitle', 'User Management')
+        @section('subtitle', 'User Management')
 
-@section('content')
-    <div class="section-body">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center w-100">
-                <h4>A</h4>
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-success ml-auto" data-toggle="modal" data-target="#createUserModal"><i
-                            class="fas fa-user-plus"></i></button>
+        @section('content')
+        <div class="section-body">
+            <div class="card">
+                <div class="text-right mb-3">
+                    <button class="btn btn-success" data-toggle="modal" data-target="#createUserModal">
+                        <i class="fas fa-user-plus"></i>
+                    </button>
                 </div>
-            </div>
-            <div class="card-body">
-                {{-- <div class="section-title mt-0">A</div> --}}
-                <div class="table-responsive" style="overflow-x: auto; min-height: 400px;">
-                    <table id="myTable" class="display table table-hover" style="width: 100%">
+                <div class="card-body">
+                    <div class="table-responsive" style="overflow-x: auto">
+                    <table id="userTable" class="display table table-hover" style="width: 100%">
                         <thead>
                             <tr>
-                                <th>Action</th>
-                                <th>ID</th>
+                                <th>No</th>
                                 <th>Username</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Created at</th>
-                                <th>Created by</th>
-                                <th>Updated at</th>
-                                <th>Updated by</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if ($users->count() > 0)
-                                @foreach ($users as $user)
-                                    <tr>
-                                        <td>
-                                            <div class="btn-group">
-                                                <button class="btn btn-warning btn-sm edit-btn"
-                                                    data-id="{{ $user->id }}" data-username="{{ $user->username }}"
-                                                    data-email="{{ $user->email }}" data-role="{{ $user->role }}"
-                                                    data-bs-toggle="modal" data-bs-target="#editUserModal">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm delete-btn"
-                                                    data-id="{{ $user->id }}" data-toggle="modal"
-                                                    data-target="#deleteUserModal">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td>{{ $user->id }}</td>
-                                        <td>{{ $user->username ?? '?' }}</td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>{{ $user->role ?? '?' }}</td>
-                                        <td>{{ $user->created_at ?? '?' }}</td>
-                                        <td>{{ $user->creator->username ?? '?' }}</td>
-                                        <td>{{ $user->updated_at ?? '?' }}</td>
-                                        <td>{{ $user->updater->username ?? '?' }}</td>
-                                    </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="8" style="text-align: center;"><small>Data Tidak
-                                            ditemukan</small></td>
-                                </tr>
-                            @endif
+                            @foreach ($users as $index => $user)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $user->username ?? '-' }}</td>
+                                <td>{{ $user->email ?? '-'}}</td>
+                                <td>{{ ucfirst($user->role) ?? '-'}}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-info btn-sm" onclick="showUser({{ $user->id }})"><i class="fas fa-eye"></i></button>
+                                        <button class="btn btn-warning btn-sm" onclick="editUser({{ $user->id }})"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-danger btn-sm" onclick="confirmDelete({{ $user->id }}, '{{ route('users.destroy', $user->id) }}')"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
+                    </div>  
                 </div>
             </div>
         </div>
-    </div>
-@endsection
+        @push('modals') 
 
-@push('modals')
-    @include('users.create')
-    @include('users.edit')
-    @include('users.delete')
-@endpush
+        @include('users.create')
+        @include('users.edit')
+        @include('users.show')
 
-@push('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#myTable').DataTable({
-                "columnDefs": [{
-                        "orderable": false,
-                        "targets": 0
-                    }, // Non-aktifkan sorting untuk kolom action
-                    {
-                        "searchable": false,
-                        "targets": 0
-                    }, // Non-aktifkan search untuk kolom action
-                    {
-                        "targets": 0,
-                        "width": "100px",
-                        "className": "dt-center"
-                    },
-                    {
-                        "targets": [1, 4, 5, 6, 7],
-                        "width": "120px"
+        @endpush
+
+        @push('scripts')
+        <script>
+            $(document).ready(function() {  
+                $('#userTable').DataTable({
+                    "columnDefs": [
+                        {"orderable": false, "targets": 4}, // Non-aktifkan sorting untuk kolom action
+                        { "searchable": false, "targets": 4}, // Non-aktifkan search untuk kolom action
+                        {"targets": 0, "width": "100px", "className": "dt-center"},
+                        {"targets": [1, 2, 3, 4], "width": "120px"}
+                    ],
+                    "order": [
+                        [0, 'asc']
+                    ],
+                    "responsive": true
+                });
+            });
+        </script>
+        <script>
+            function showUser(userId) {
+                $.get('/users/' + userId, function(response) {
+                    $('#show_username').val(response.username);
+                    $('#show_email').val(response.email);
+                    $('#show_role').val(response.role);
+                    $('#show_created_at').val(response.created_at);
+                    $('#show_created_by').val(response.creator);
+                    $('#show_updated_at').val(response.updated_at);
+                    $('#show_updated_by').val(response.updater);
+                    $('#showUserModal').modal('show');
+                });
+            }
+
+            function editUser(userId) {
+                $.get('/users/' + userId + '/edit', function(response) {
+                    $('#editUserForm').attr('action', '/users/' + userId);
+                    $('#edit_username').val(response.username);
+                    $('#edit_email').val(response.email);
+                    $('#edit_role').val(response.role);
+                    $('#editUserModal').modal('show');
+                });
+            }
+        </script>
+        <script>  
+            $(document).ready(function() {
+                @if (session('success'))
+                    iziToast.success({ title: 'Success', message: "{{ session('success') }}", position: 'topRight'});
+                @endif
+
+                @if (session('error'))
+                    iziToast.error({ title: 'Error', message: "{{ session('error') }}", position: 'topRight'});
+                @endif
+            });
+        </script>
+        <script>
+            function confirmDelete(userId, deleteUrl) {
+                swal({
+                    title: "Apakah Anda yakin?",
+                    text: "Setelah dihapus, data ini tidak bisa dikembalikan!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        $.ajax({
+                            url: deleteUrl,
+                            type: 'POST',
+                            data: {
+                                _method: 'DELETE',
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(response) {
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1500);
+                                iziToast.success({ title: 'Success', message: "User berhasil dihapus", position: 'topRight'});
+                            },
+                            error: function() {
+                                swal('Gagal!', 'Terjadi kesalahan saat menghapus data.', 'error');
+                                iziToast.error({title: 'Error', message: "User gagl dihapus", position: 'topRight'})
+                            }
+                        });
                     }
-                ],
-                "order": [
-                    [1, 'asc']
-                ],
-                "responsive": true
-            });
-        });
-
-        $(document).ready(function() {
-
-            $('#createUserModal').on('show.bs.modal', function() {
-                $(this).find('form')[0].reset(); // Reset form setiap kali modal ditampilkan
-            });
-
-            $('#editUserModal').on('hidden.bs.modal', function() {
-                $(this).find('form')[0].reset(); // Reset form saat modal ditutup
-            });
-
-            $('.edit-btn').click(function() {
-                const userId = $(this).data('id');
-                const username = $(this).data('username');
-                const email = $(this).data('email');
-                const role = $(this).data('role');
-                const password = $(this).data('password');
-
-                // Pastikan form modal diisi dengan data yang benar
-                $('#editUserForm').attr('action', `/users/${userId}`);
-                $('#edit_username').val(username);
-                $('#edit_email').val(email);
-                $('#edit_role').val(role);
-                $('#edit_password').val(password);
-
-                // Tampilkan modal
-                $('#editUserModal').modal('show');
-            });
-
-            // Handle delete button click
-            $('.delete-btn').click(function() {
-                const userId = $(this).data('id');
-                $('#deleteUserForm').attr('action', `/users/${userId}`);
-            });
-        });
-
-        $(document).ready(function() {
-            @if (session('success'))
-                iziToast.success({
-                    title: 'Berhasil',
-                    message: "{{ session('success') }}",
-                    position: 'topRight',
-                    timeout: 5000, // Waktu tampil
                 });
-            @endif
-
-            @if (session('error'))
-                iziToast.error({
-                    title: 'Gagal',
-                    message: "{{ session('error') }}",
-                    position: 'topRight',
-                    timeout: 5000,
-                });
-            @endif
-        });
-    </script>
-@endpush
+            }
+        </script>
+        @endpush
+        @endsection

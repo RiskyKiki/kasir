@@ -18,10 +18,6 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
-        ], [
-            'email.required' => 'Email dan password wajib diisi!',
-            'email.email' => 'Inputan harus sesuai dengan format email!',
-            'password.required' => 'Email dan password wajib diisi!'
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -30,6 +26,8 @@ class AuthController extends Controller
             $request->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Login berhasil!');
         }
+
+        dd($credentials);
 
         return back()->with('error', 'Email atau password salah!');
     }

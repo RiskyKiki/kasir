@@ -26,11 +26,10 @@
     <link rel="stylesheet" href="{{ asset('modules/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('modules/bootstrap-daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('modules/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('modules/jquery-selectric/selectric.css') }}">
     <link rel="stylesheet" href="{{ asset('modules/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
-    <link rel="seylesheet" href="{{ asset('modules/bootstrap-social/bootstrap-social.css') }}"
+    <link rel="seylesheet" href="{{ asset('modules/bootstrap-social/bootstrap-social.css') }}">
 
     <!-- Custom CSS Files -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -68,7 +67,7 @@
 
     @stack('modals')
 
-    <<!-- General JS Scripts -->
+    <!-- General JS Scripts -->
     <script src="{{ asset('modules/jquery.min.js') }}"></script>
     <script src="{{ asset('modules/jquery-ui/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('modules/popper.js') }}"></script>
@@ -76,7 +75,6 @@
     <script src="{{ asset('modules/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('modules/nicescroll/jquery.nicescroll.min.js') }}"></script>
     <script src="{{ asset('modules/moment.min.js') }}"></script>
-    <script src="{{ asset('js/stisla.js') }}"></script>
     <script src="{{ asset('modules/bootbox/bootbox.min.js') }}"></script>
     <script src="{{ asset('modules/jquery.blockUI.js') }}"></script>
 

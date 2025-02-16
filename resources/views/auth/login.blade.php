@@ -72,20 +72,20 @@
 
                 // 1. Menekan tombol login tanpa memasukkan email & password
                 if (email === '' && password === '') {
-                    iziToast.warning({ title: 'Peringatan', message: 'Email & Password wajib diisi!', position: 'topCenter' });
+                    iziToast.warning({ title: 'Warning', message: 'Email & Password wajib diisi!', position: 'topCenter' });
                     return;
                 }
 
                 // 2. Memasukkan format non-email pada kolom email
                 let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (email !== '' && !emailPattern.test(email)) {
-                    iziToast.error({ title: 'Kesalahan', message: 'Format email tidak valid!', position: 'topCenter' });
+                    iziToast.error({ title: 'Error', message: 'Format email tidak valid!', position: 'topCenter' });
                     return;
                 }
 
                 // 3. Hanya mengisi salah satu dari email atau password
                 if (email === '' || password === '') {
-                    iziToast.warning({ title: 'Kesalahan', message: 'Email & Password wajib diisi!', position: 'topCenter' });
+                    iziToast.warning({ title: 'Warning', message: 'Email & Password wajib diisi!', position: 'topCenter' });
                     return;
                 }
 
@@ -95,11 +95,11 @@
 
             // Menampilkan notifikasi dari Laravel session
             @if(session('success'))
-                iziToast.success({ title: 'Sukses', message: '{{ session('success') }}', position: 'topRight' });
+                iziToast.success({ title: 'Success', message: '{{ session('success') }}', position: 'topRight' });
             @endif
 
             @if(session('error'))
-                iziToast.error({ title: 'Gagal', message: '{{ session('error') }}', position: 'topCenter' });
+                iziToast.error({ title: 'Error', message: '{{ session('error') }}', position: 'topCenter' });
             @endif
 
             @if(session('info'))

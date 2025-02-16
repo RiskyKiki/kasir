@@ -2,7 +2,7 @@
 <div class="main-sidebar sidebar-style-2">
         <aside id="sidebar-wrapper">
             <div class="sidebar-brand">
-                <a href="">Kamen Rider</a>
+                <a href="">KASIR</a>
             </div>
             <div class="sidebar-brand sidebar-brand-sm">
                 <a href="">KR</a>
@@ -20,9 +20,6 @@
                     </li>
                     <li class="{{ request()->routeIs('barang.index') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('barang.index') }}"><i class="fas fa-table"></i><span>Barang</span></a>
-                    </li>
-                    <li class="{{ request()->routeIs('pelanggan.index') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('pelanggan.index') }}"><i class="fas fa-table"></i><span>Pelanggan</span></a>
                     </li>
                 @endif
                 <li class="menu-header">Khusus Petugas</li>

@@ -1,52 +1,37 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $users = User::with('creator', 'updater')->get();
+        $users = User::all();
         return view('users.index', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('users.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'username' => 'required|string',
-            'email' => 'required|string|email|unique:users',
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'role' => 'required|in:admin,petugas',
-            'password' => [
-                'required',
-                'string',
-                Password::min(8)
-                    ->mixedCase()
-                    ->numbers()
-                    ->uncompromised(),
-            ],
+            'password' => 'required|min:8|confirmed',
         ]);
 
-        $user = User::create([
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+                'message' => 'Validasi gagal'
+            ], 422);
+        }
+
+        User::create([
             'username' => $request->username,
             'email' => $request->email,
             'role' => $request->role,
@@ -54,55 +39,30 @@ class UserController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User berhasil dibuat.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        return view('users.show', compact('user'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-{
-    $user = User::find($id);
-
-    if (!$user) {
-        return redirect()->route('users.index')->with('error', 'User not found.');
-    }
-
-    return view('users.edit', compact('user'));
-}
-
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-{
-    $user = User::find($id);
-
-    if (!$user) {
-        return redirect()->route('users.index')->with('error', 'User not found.');
-    }
-        $request->validate([
-            'username' => 'required|string|unique:users,username,' . $user->id,
-            'email' => 'required|string|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,petugas',
-            'password' => [
-                'nullable',
-                'string',
-                Password::min(8)
-                    ->mixedCase()
-                    ->numbers()
-                    ->uncompromised(),
-            ],
+        return response()->json([
+            'success' => 'User berhasil ditambahkan!'
         ]);
+    }
+
+    public function edit(User $user)
+    {
+        return response()->json($user);
+
+    }
+
+
+    public function update(Request $request, User $user)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,petugas',
+            'password' => 'nullable|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
         $user->update([
             'username' => $request->username,
@@ -112,21 +72,32 @@ class UserController extends Controller
             'updated_by' => Auth::id(),
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
+        return response()->json([
+            'success' => 'User berhasil diubah!'
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
-    {
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
-    }
+        public function destroy(User $user)
+        {
+            if ($user->id === Auth::id()) {
+                return redirect()->back()->with('error', 'Tidak dapat menghapus akun sendiri!');
+            }
+            
+            $user->delete();
+            return redirect()->route('users.index')->with('success', 'User berhasil dihapus!');
+        }
 
-    public function getUserById($id)
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
-        return response()->json($user);
+        return response()->json([
+            'id' => $user->id,  
+            'username' => $user->username,
+            'email' => $user->email,
+            'role' => $user->role,
+            'created_at' => $user->created_at->format('Y-m-d H:i:s'),
+            'creator' => $user->creator ? $user->creator->username : '-',
+            'updated_at' => $user->updated_at->format('Y-m-d H:i:s'),
+            'updater' => $user->updater ? $user->updater->username : '-',
+        ]); 
     }
 }
