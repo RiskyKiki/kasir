@@ -33,7 +33,7 @@
   $(document).ready(function() {
     // Reset form dan error ketika modal ditutup
     $('#createModal').on('hidden.bs.modal', function() {
-      $('#kode').val('PDR-');
+      $('#kode').val('CAT-');
       $('#createForm').trigger('reset');
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();

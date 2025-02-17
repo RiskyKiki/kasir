@@ -27,8 +27,6 @@ class AuthController extends Controller
             return redirect()->route('dashboard')->with('success', 'Login berhasil!');
         }
 
-        dd($credentials);
-
         return back()->with('error', 'Email atau password salah!');
     }
 

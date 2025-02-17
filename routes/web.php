@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KatprodukController;
 use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
@@ -24,9 +24,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::resource('/pelanggan', PelangganController::class);
 
-        Route::resource('/kategori', KatprodukController::class);
+        Route::resource('/produk', ProdukController::class);
 
-        Route::resource('/barang', BarangController::class);
+        Route::resource('/kategori', KatprodukController::class);
     });
 
     Route::middleware('role:admin,petugas')->group(function () {
