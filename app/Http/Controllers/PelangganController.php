@@ -31,14 +31,12 @@ class PelangganController extends Controller
             ], 422);
         }
 
-        $poin = $request->tipe === 'Umum' ? null : 0;
-
         Pelanggan::create([
             'nama'       => $request->nama,
             'telepon'    => $request->telepon,
             'alamat'     => $request->alamat,
             'tipe'       => $request->tipe,
-            'poin'       => $poin,
+            'poin'       => 0,
             'created_by' => Auth::id(),
         ]);
 
@@ -57,9 +55,9 @@ class PelangganController extends Controller
             'tipe'       => $pelanggan->tipe ?? '-',
             'poin'       => $pelanggan->poin ?? '-',
             'created_at' => $pelanggan->created_at ? $pelanggan->created_at->format('Y-m-d H:i:s'): '-' ,
-            'creator'    => $pelanggan->creator ? $pelanggan->creator->username : '-', //??
+            'creator'    => $pelanggan->creator ? $pelanggan->creator->username : '-', 
             'updated_at' => $pelanggan->updated_at ? $pelanggan->updated_at->format('Y-m-d H:i:s'): '-',
-            'updater'    => $pelanggan->updater ? $pelanggan->updater->username : '-', //??
+            'updater'    => $pelanggan->updater ? $pelanggan->updater->username : '-', 
         ]);
     }
 
@@ -84,14 +82,11 @@ class PelangganController extends Controller
             ], 422);
         }
 
-        $poin = $request->tipe === 'Umum' ? null : 0;
-
         $pelanggan->update([
-            'nama'    => $request->nama,
-            'telepon' => $request->telepon,
-            'alamat'  => $request->alamat,
-            'tipe'    => $request->tipe,
-            'poin'    => $poin,
+            'nama'       => $request->nama,
+            'telepon'    => $request->telepon,
+            'alamat'     => $request->alamat,
+            'tipe'       => $request->tipe,
             'updated_by' => Auth::id(),
         ]);
 
@@ -105,5 +100,6 @@ class PelangganController extends Controller
         $pelanggan->delete();
         return response()->json([
             'success' => 'Pelanggan berhasil dihapus!'
-        ]);    }
+        ]);    
+    }
 }

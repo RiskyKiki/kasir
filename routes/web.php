@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\KatprodukController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\TransaksiController;
 
@@ -22,6 +23,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/users', UserController::class);
 
         Route::resource('/pelanggan', PelangganController::class);
+
+        Route::resource('/kategori', KatprodukController::class);
 
         Route::resource('/barang', BarangController::class);
     });

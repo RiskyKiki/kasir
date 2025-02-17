@@ -21,6 +21,9 @@
                     <li class="{{ request()->routeIs('pelanggan.index') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('pelanggan.index')}}"><i class="fas fa-users"></i><span>Pelanggan</span></a>
                     </li>
+                    <li class="{{ request()->routeIs('kategori.index') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('kategori.index') }}"><i class="fas fa-box"></i><span>Kategori</span></a>
+                    </li>                 
                     <li class="{{ request()->routeIs('barang.index') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('barang.index') }}"><i class="fas fa-table"></i><span>Barang</span></a>
                     </li>

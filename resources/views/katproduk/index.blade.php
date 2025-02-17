@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Customer')
+@section('title', 'Category')
 
-@section('subtitle', 'Customer Management')
+@section('subtitle', 'Product Category Management')
 
 @section('content')
 
@@ -10,13 +10,13 @@
     <div class="card">
         <div class="text-right mb-3">
             <button class="btn btn-success" data-toggle="modal" data-target="#createModal">
-                <i class="fas fa-user-plus"></i>
+                <i class="fas fa-plus"></i>
             </button>
         </div>
         <div class="card-body">
             <div class="table-responsive" style="overflow-x: auto">
                 <div id="TableContainer">
-                    @include('pelanggan.table')
+                    @include('katproduk.table')
                 </div>
             </div>
         </div>
@@ -24,9 +24,9 @@
 </div>
 
 @push('modals')
-    @include('pelanggan.create')
-    @include('pelanggan.edit')
-    @include('pelanggan.show')
+    @include('katproduk.create')
+    @include('katproduk.edit')
+    @include('katproduk.show')
 @endpush
 
 @push('scripts')
@@ -34,10 +34,10 @@
     $(document).ready(function() {
                 $('#myTable').DataTable({
                     "columnDefs": [
-                        {"orderable": false, "targets": 5},
-                        {"searchable": false, "targets": 5},
+                        {"orderable": false, "targets": 3},
+                        {"searchable": false, "targets": 3},
                         {"targets": 0, "width": "100px", "className": "dt-center"},
-                        {"targets": [1, 2, 3, 4, 5], "width": "120px"}
+                        {"targets": [1, 2, 3], "width": "120px"}
                     ],
                     "order": [
                         [0, 'asc']
@@ -48,16 +48,16 @@
 </script>
 <script>//reload table&datatable
     function reloadTable() {
-        console.log('Memuat ulang tabel pelanggan...');
+        console.log('Memuat ulang tabel kategori...');
         $("#TableContainer").load(location.href + " #TableContainer > *", function() {
-            console.log('Tabel pelanggan telah diperbarui.');
+            console.log('Tabel kategori telah diperbarui.');
                 $('#myTable').DataTable().destroy();
                 $('#myTable').DataTable({
                     "columnDefs": [
-                        {"orderable": false, "targets": 5},
-                        {"searchable": false, "targets": 5},
+                        {"orderable": false, "targets": 3},
+                        {"searchable": false, "targets": 3},
                         {"targets": 0, "width": "100px", "className": "dt-center"},
-                        {"targets": [1, 2, 3, 4, 5], "width": "120px"}
+                        {"targets": [1, 2, 3], "width": "120px"}
                     ],
                     "order": [
                         [0, 'asc']
@@ -69,40 +69,34 @@
 </script>
 <script>//modal edit&show
     function show(id) {
-        console.log(`Menampilkan pelanggan dengan ID: ${id}`);
+        console.log(`Menampilkan kategori dengan ID: ${id}`);
 
-        $.get('/pelanggan/' + id, function(response) {
-            console.log("Data pelanggan berhasil diambil:", response);
+        $.get('/kategori/' + id, function(response) {
+            console.log("Data user berhasil diambil:", response);
+            $('#show_kode').val(response.kode);
             $('#show_nama').val(response.nama);
-            $('#show_telepon').val(response.telepon);
-            $('#show_alamat').val(response.alamat);
-            $('#show_tipe').val(response.tipe);
-            $('#show_poin').val(response.poin);
             $('#show_created_at').val(response.created_at);
             $('#show_created_by').val(response.creator);
             $('#show_updated_at').val(response.updated_at);
             $('#show_updated_by').val(response.updater);
             $('#showModal').modal('show');
         }).fail(function(xhr) {
-            console.log("Gagal mengambil data pelanggan:", xhr);
+            console.log("Gagal mengambil data kategori:", xhr);
         });
     }
 
     function edit(id) {
-        console.log(`Mengedit pelanggan dengan ID: ${id}`);
+        console.log(`Mengedit kategori dengan ID: ${id}`);
 
-        $.get('/pelanggan/' + id + '/edit', function(response) {
-            console.log("Data pelanggan berhasil diambil:", response);
+        $.get('/kategori/' + id + '/edit', function(response) {
+            console.log("Data kategori berhasil diambil:", response);
             const form = $('#editForm');
-            form.attr('action', '/pelanggan/' + id);
+            form.attr('action', '/kategori/' + id);
             $('#edit_nama').val(response.nama);
-            $('#edit_telepon').val(response.telepon);
-            $('#edit_alamat').val(response.alamat);
-            $('#edit_tipe').val(response.tipe);
-            $('#edit_poin').val(response.poin);
+            $('#edit_kode').val(response.kode);
             $('#editModal').modal('show');
         }).fail(function(xhr) {
-            console.log("Gagal mengambil data pelanggan:", xhr);
+            console.log("Gagal mengambil data kategori:", xhr);
         });
     }
 </script>
@@ -117,6 +111,7 @@
             buttons: true,
             dangerMode: true,
         }).then((willDelete) => {
+            console.log(willDelete);
             if (willDelete) {
                 $.ajax({
                     url: deleteUrl,
@@ -127,13 +122,12 @@
                     },
                     success: function(response) {
                         console.log(response); // Debugging response
-                        reloadTable()
-                        iziToast.success({title: 'Success', message: "Pelanggan berhasil dihapus", position: 'topRight'});
+                        iziToast.success({title: 'Success', message: "Kategori berhasil dihapus", position: 'topRight'});
+                        reloadTable();
                     },
-                    error: function() {
+                    error: function(xhr) {
                         console.log(xhr.responseText);
                         swal('Gagal!', 'Terjadi kesalahan saat menghapus data.', 'error');
-                        iziToast.error({title: 'Error', message: "Pelanggan gagl dihapus", position: 'topRight'})
                     }
                 });
             }

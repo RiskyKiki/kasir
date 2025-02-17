@@ -2,33 +2,21 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createModalLabel">Tambah Pelanggan</h5>
+                <h5 class="modal-title" id="createModalLabel">Tambah kategori</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="createForm" method="POST" action="{{ route('pelanggan.store') }}">
+                <form id="createForm" method="POST" action="{{ route('kategori.store') }}">
                             @csrf
+                            <div class="form-group">
+                                <label for="kode">Kode</label>
+                                <input type="text" class="form-control" id="kode" name="kode" value="PDR-">
+                            </div>
                             <div class="form-group">
                                 <label for="nama">Nama</label>
                                 <input type="text" class="form-control" id="nama" name="nama">
-                            </div>
-                            <div class="form-group">
-                                <label for="telepon">Telepon</label>
-                                <input type="text" class="form-control" id="telepon" name="telepon">
-                            </div>
-                            <div class="form-group">
-                                <label for="alamat">Alamat</label>
-                                <input type="text" class="form-control" id="alamat" name="alamat">
-                            </div>
-                            <div class="form-group">
-                                <label for="tipe">Tipe</label>
-                                <select class="form-control" id="tipe" name="tipe">
-                                    <option value="Umum" selected>Umum</option>
-                                    <option value="Loyal">Loyal</option>
-                                    <option value="VIP">VIP</option>
-                                </select>
                             </div>
                 </div>
             <div class="modal-footer">
@@ -45,6 +33,7 @@
   $(document).ready(function() {
     // Reset form dan error ketika modal ditutup
     $('#createModal').on('hidden.bs.modal', function() {
+      $('#kode').val('PDR-');
       $('#createForm').trigger('reset');
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
@@ -118,6 +107,15 @@
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
 
+    if ($('#kode').val().trim() === '') {
+            iziToast.error({
+                title: 'Error',
+                message: 'Kode wajib diisi',
+                position: 'topRight'
+                });
+            showError($('#kode'), 'Kode wajib diisi');
+            isValid = false;
+        }
       if ($('#nama').val().trim() === '') {
         iziToast.error({
               title: 'Error',
@@ -127,24 +125,7 @@
         showError($('#nama'), 'Nama wajib diisi');
         isValid = false;
       }
-      if ($('#telepon').val().trim() === '') {
-        iziToast.error({
-              title: 'Error',
-              message: 'Telepon wajib diisi',
-              position: 'topRight'
-            });
-        showError($('#telepon'), 'Telepon wajib diisi');
-        isValid = false;
-      }
-      if ($('#alamat').val().trim() === '') {
-        iziToast.error({
-              title: 'Error',
-              message: 'Alamat wajib diisi',
-              position: 'topRight'
-            });
-        showError($('#alamat'), 'Alamat wajib diisi');
-        isValid = false;
-      }
+      
       return isValid;
     }
 

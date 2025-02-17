@@ -2,21 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Pelanggan extends Model
+class Katproduk extends Model
 {
-    use HasFactory, SoftDeletes;
-
+    use HasFactory;
+    use SoftDeletes;
     protected $fillable = [
-        'nama', 
-        'telepon', 
-        'alamat', 
-        'tipe', 
-        'poin', 
-        'created_by', 
+        'kode',
+        'nama',
+        'created_by',
         'updated_by',
     ];
 
