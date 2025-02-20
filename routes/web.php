@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StokController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ProdukController;
@@ -9,7 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KatprodukController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\TransaksiController;
-use App\Http\Controllers\StokController;
+use App\Http\Controllers\ActivityLogController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -31,6 +32,8 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/kategori/newkode', action: [KatprodukController::class, 'getNewKode'])->name('kategori.newkode');
         Route::resource('/kategori', KatprodukController::class);
+
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity.logs');
     });
 
     Route::middleware('role:admin,petugas')->group(function () {

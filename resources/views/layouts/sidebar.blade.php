@@ -42,8 +42,8 @@
                                 Barang</span></a>
                     </li>
                     <li class="menu-header">Lain-lain</li>
-                    <li class="{{ request()->routeIs('kategori.index') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('kategori.index') }}"> <i class="fas fa-bolt"></i>
+                    <li class="{{ request()->routeIs('activity.logs') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('activity.logs') }}"> <i class="fas fa-bolt"></i>
                             </i><span>Log Aktifitas</span></a>
                     </li>
                 @endif
