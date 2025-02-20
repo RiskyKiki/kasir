@@ -37,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('role:admin,petugas')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/transaksi/export', [TransaksiController::class, 'exportExcel'])->name('transaksi.export');
         Route::resource('/transaksi', TransaksiController::class);
