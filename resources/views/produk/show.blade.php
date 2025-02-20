@@ -1,5 +1,5 @@
 <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document"> <!-- Menggunakan modal besar -->
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="showModalLabel">Detail Produk</h5>
@@ -85,13 +85,3 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#showModal').on('show.bs.modal', function() {
-                $('#showModal .modal-body').scrollTop(0);
-            });
-        });
-    </script>
-@endpush

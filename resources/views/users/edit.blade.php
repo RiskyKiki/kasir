@@ -37,9 +37,8 @@
                                     <input type="password" id="password" name="password" class="form-control"
                                         placeholder="Kosongkan jika tidak merubah password">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn"
-                                            onclick="togglePassword('password', 'togglePasswordIcon')">
-                                            <i id="togglePasswordIcon" class="fa fa-eye"></i>
+                                        <button type="button" class="btn" onclick="togglePassword('password', 'togglePasswordIcon')">
+                                            <span class="input-group-text-sm"><i id="togglePasswordIcon" class="fa fa-eye"></i></span>
                                         </button>
                                     </div>
                                 </div>
@@ -50,10 +49,9 @@
                                     <input type="password" id="password_confirmation" name="password_confirmation"
                                         class="form-control" placeholder="Kosongkan jika tidak mengisi password">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn"
-                                            onclick="togglePassword('password_confirmation', 'toggleConfirmPasswordIcon')">
-                                            <i id="toggleConfirmPasswordIcon" class="fa fa-eye"></i>
-                                        </button>
+                                        <button type="button" class="btn" onclick="togglePassword('password_confirmation', 'toggleConfirmPasswordIcon')">
+                                            <span class="input-group-text-sm"><i id="toggleConfirmPasswordIcon" class="fa fa-eye"></i></span>
+                                            </button>
                                     </div>
                                 </div>
                             </div>
@@ -171,6 +169,14 @@
             function showError(input, message) {
                 console.log(`Menampilkan error pada field ${input.attr('id')}:`, message);
                 input.addClass('is-invalid');
+
+                 // Jika elemen memiliki input-group, tambahkan error setelah input-group-append
+                if (input.closest('.input-group').length) {
+                    input.closest('.input-group').after(`<div class="invalid-feedback d-block">${message}</div>`);
+                } else {
+                    input.after(`<div class="invalid-feedback d-block">${message}</div>`);
+                }
+
                 input.after(`<div class="invalid-feedback d-block">${message}</div>`);
             }
         });

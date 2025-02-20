@@ -113,5 +113,12 @@
 
     <!-- Additional JS (if any) -->
     @stack('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#showModal').on('show.bs.modal', function() {
+                $('#showModal .modal-body').scrollTop(0);
+            });
+        });
+    </script>
 </body>
 </html>

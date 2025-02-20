@@ -14,7 +14,7 @@
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="kode">Kode</label>
-                                <input type="text" class="form-control" id="kode" name="kode" value="PRD-">
+                                <input type="text" class="form-control" id="kode" name="kode" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="nama">Nama Produk</label>
@@ -30,7 +30,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <input type="hidden" class="form-control" id="tanggal_pembelian" name="tanggal_pembelian" readonly>
+                              <label for="tanggal_pembelian">Tanggal Pembelian</label>
+                                <input type="date" class="form-control" id="tanggal_pembelian" name="tanggal_pembelian">
                             </div>
                             <div class="form-group">
                                 <label for="tanggal_kadaluarsa">Tanggal Kadaluarsa</label>
@@ -69,7 +70,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" id="submitBtn">Create</button>
+                <button type="submit" class="btn btn-primary">Create</button>
             </div>
         </form>
         </div>
@@ -79,20 +80,30 @@
 @push('scripts')
 <script>
   $(document).ready(function() {
-    // Set tanggal pembelian otomatis ke tanggal hari ini
+    console.log("Document ready");
     let today = new Date().toISOString().split('T')[0];
     $('#tanggal_pembelian').val(today);
-
-    // Reset form ketika modal ditutup
+    $('#createModal').on('show.bs.modal', function() {
+    $.ajax({
+      url: '{{ route('produk.newkode') }}',
+      type: 'GET',
+      success: function(response) {
+        console.log("Kode terbaru didapat:", response.kodeTerbaru);
+        $('#kode').val(response.kodeTerbaru);
+      },
+      error: function(xhr) {
+        console.log("Gagal mengambil kode terbaru:", xhr);
+      }
+    });
+  });
     $('#createModal').on('hidden.bs.modal', function() {
-      $('#kode').val('PRD-');
+      console.log("Modal ditutup");
       $('#createForm').trigger('reset');
       $('#tanggal_pembelian').val(today);
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
     });
 
-    // Hitung Harga 1, 2, 3 berdasarkan HPP
     $('#hpp').on('input', function() {
       let hpp = parseFloat($(this).val()) || 0;
       $('#harga1').val(hpp + (hpp * 0.10));
@@ -100,15 +111,20 @@
       $('#harga3').val(hpp + (hpp * 0.30));
     });
 
-    // Submit form dengan validasi
     $('#createForm').submit(function(e) {
       e.preventDefault();
-      if (!validateForm()) return;
+      console.log("Form disubmit");
 
       let form = $(this);
       let formData = form.serialize();
       let url = form.attr('action');
 
+      if (!validateForm()) {
+        console.log("Validasi form gagal");
+        return;
+      }
+
+      console.log("Mengirim konfirmasi swal");
       swal({
         title: "Konfirmasi",
         text: "Apakah data yang dimasukkan sudah benar?",
@@ -116,20 +132,28 @@
         buttons: true,
       }).then((confirm) => {
         if (confirm) {
+          console.log("Konfirmasi diterima, memproses form...");
           processFormSubmission(form, url, formData);
+        } else {
+          console.log("Konfirmasi dibatalkan");
         }
       });
     });
 
     function processFormSubmission(form, url, formData) {
+      console.log("Mengirim AJAX request ke:", url);
+      console.log("Data yang dikirim:", formData);
+
       $.ajax({
         url: url,
         method: 'POST',
         data: formData,
         beforeSend: function() {
-          $('#submitBtn').prop('disabled', true).html('Menyimpan...');
+          console.log("Sebelum mengirim request...");
+          form.find('button[type="submit"]').prop('disabled', true).html('Menyimpan...');
         },
         success: function(response) {
+          console.log("Response sukses:", response);
           $('#createModal').modal('hide');
           iziToast.success({
             title: 'Sukses',
@@ -139,15 +163,14 @@
           reloadTable();
         },
         error: function(xhr) {
-          $('#submitBtn').prop('disabled', false).html('Create');
+          console.log("Response error:", xhr);
+          form.find('button[type="submit"]').prop('disabled', false).html('Create');
           if (xhr.status === 422) {
+            console.log("Error validasi:", xhr.responseJSON.errors);
             handleValidationErrors(xhr.responseJSON.errors);
           } else {
-            iziToast.error({
-              title: 'Error',
-              message: xhr.responseJSON.message || 'Terjadi kesalahan sistem',
-              position: 'topRight'
-            });
+            console.log("Terjadi kesalahan sistem");
+            iziToast.error({title: 'Error', message: xhr.responseJSON.message || 'Terjadi kesalahan sistem', position: 'topRight'});
           }
         }
       });
@@ -155,51 +178,61 @@
 
     function validateForm() {
       let isValid = true;
+      console.log("Memvalidasi form...");
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
 
-      if ($('#kode').val().trim() === '') {
-        iziToast.error({ title: 'Error', message: 'Kode wajib diisi', position: 'topRight' });
-        showError($('#kode'), 'Kode wajib diisi');
-        isValid = false;
-      }
       if ($('#nama').val().trim() === '') {
+        console.log("Error: Nama wajib diisi");
         iziToast.error({ title: 'Error', message: 'Nama wajib diisi', position: 'topRight' });
         showError($('#nama'), 'Nama wajib diisi');
         isValid = false;
       }
-      if ($('#kategori').val().trim() === '') {
-        iziToast.error({ title: 'Error', message: 'Kategori wajib dipilih', position: 'topRight' });
-        showError($('#kategori'), 'Kategori wajib dipilih');
-        isValid = false;
-      }
       if ($('#tanggal_kadaluarsa').val().trim() === '') {
+        console.log("Error: Tanggal kadaluarsa wajib dipilih");
         iziToast.error({ title: 'Error', message: 'Tanggal kadaluarsa wajib dipilih', position: 'topRight' });
         showError($('#tanggal_kadaluarsa'), 'tanggal_kadaluarsa wajib dipilih');
         isValid = false;
       }
       if ($('#stok').val().trim() === '' || $('#stok').val() <= 0) {
+        console.log("Error: Stok wajib diisi dengan angka positif");
         iziToast.error({ title: 'Error', message: 'Stok wajib diisi dengan angka positif', position: 'topRight' });
         showError($('#stok'), 'Stok wajib diisi dengan angka positif');
         isValid = false;
       }
       if ($('#min_stok').val().trim() === '' || $('#min_stok').val() <= 0) {
+        console.log("Error: Stok wajib diisi dengan angka positif");
         iziToast.error({ title: 'Error', message: 'Minimal stok wajib diisi dengan angka positif', position: 'topRight' });
         showError($('#min_stok'), 'min_Stok wajib diisi dengan angka positif');
         isValid = false;
       }
       if ($('#hpp').val().trim() === '' || $('#hpp').val() <= 0) {
+        console.log("Error: HPP wajib diisi dengan angka positif");
         iziToast.error({ title: 'Error', message: 'HPP wajib diisi dengan angka positif', position: 'topRight' });
         showError($('#hpp'), 'HPP wajib diisi dengan angka positif');
         isValid = false;
       }
 
+      console.log("Validasi selesai, hasil:", isValid);
       return isValid;
     }
 
+    function handleValidationErrors(errors) {
+      console.log("Menangani error validasi...");
+      for (var field in errors) {
+        var input = $('#' + field);
+        console.log("Error pada:", field, "Pesan:", errors[field][0]);
+        showError(input, errors[field][0]);
+      }
+    }
+
     function showError(input, message) {
+      console.log("Menampilkan error pada input:", input.attr('id'), "Pesan:", message);
       input.addClass('is-invalid');
       input.after('<div class="invalid-feedback d-block">' + message + '</div>');
+      $('html, body').animate({
+        scrollTop: input.offset().top - 100
+      }, 500);
     }
   });
 </script>

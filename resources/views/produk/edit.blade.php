@@ -8,11 +8,10 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="editForm" method="POST" action="">
+                <form id="editForm" method="POST" action="{{ route('produk.update', $produk->id ?? '') }}">
                     @csrf
                     @method('PUT')
                     <input type="hidden" id="edit_id" name="id">
-
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
@@ -33,7 +32,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <input type="hidden" class="form-control" id="edit_tanggal_pembelian"
+                                <label for="tanggal_pembelian">Tanggal Pembelian</label>
+                                <input type="date" class="form-control" id="edit_tanggal_pembelian"
                                     name="tanggal_pembelian" readonly>
                             </div>
                             <div class="form-group">
@@ -70,12 +70,13 @@
                             </div>
                         </div>
                     </div>
-                </form>
+                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary" id="updateBtn">Simpan Perubahan</button>
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
             </div>
+        </form>
         </div>
     </div>
 </div>
@@ -83,46 +84,34 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // Reset form dan error saat modal ditutup
+            console.log("Script edit pelanggan dimuat...");
             $('#editModal').on('hidden.bs.modal', function() {
+                console.log("Modal edit ditutup. Mereset form...");
                 $('#editForm').trigger('reset');
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').remove();
             });
 
-            // Saat tombol edit ditekan, isi modal dengan data produk
-            function fillEditForm(data) {
-                $('#edit_id').val(data.produk.id);
-                $('#edit_kode').val(data.produk.kode);
-                $('#edit_nama').val(data.produk.nama);
-                $('#edit_tanggal_pembelian').val(data.produk.tanggal_pembelian);
-                $('#edit_tanggal_kadaluarsa').val(data.produk.tanggal_kadaluarsa);
-                $('#edit_stok').val(data.produk.stok);
-                $('#edit_min_stok').val(data.produk.min_stok);
-                $('#edit_hpp').val(data.produk.hpp);
-                $('#edit_harga1').val(data.produk.hpp * 1.10);
-                $('#edit_harga2').val(data.produk.hpp * 1.20);
-                $('#edit_harga3').val(data.produk.hpp * 1.30);
-
-                $('#editForm').attr('action', '/produk/' + data.produk.id);
-            }
-
-            // Hitung ulang harga saat HPP diubah
             $('#edit_hpp').on('input', function() {
                 let hpp = parseFloat($(this).val()) || 0;
+                console.log(hpp);
                 $('#edit_harga1').val(hpp + (hpp * 0.10));
                 $('#edit_harga2').val(hpp + (hpp * 0.20));
                 $('#edit_harga3').val(hpp + (hpp * 0.30));
             });
 
-            // Tangani submit form edit
             $('#editForm').submit(function(e) {
                 e.preventDefault();
                 var form = $(this);
-                if (!validateForm()) return;
-
                 var formData = form.serialize();
                 var url = form.attr('action');
+
+                console.log("Mengirim form edit dengan data:", formData);
+
+                if (!validateForm()) {
+                    console.log("Validasi form gagal, pengiriman dibatalkan.");
+                    return;
+                }
 
                 swal({
                     title: "Konfirmasi",
@@ -132,20 +121,26 @@
                     dangerMode: true,
                 }).then((confirm) => {
                     if (confirm) {
+                        console.log("Konfirmasi diterima, mengirim data...");
                         submitEditForm(form, url, formData);
+                    } else {
+                        console.log("Pengeditan dibatalkan oleh pengguna.");
                     }
                 });
             });
 
             function submitEditForm(form, url, formData) {
+                console.log(`Mengirim AJAX request ke: ${url}`);
                 $.ajax({
                     url: url,
                     method: 'PUT',
                     data: formData,
                     beforeSend: function() {
-                        $('#updateBtn').prop('disabled', true).html('Menyimpan...');
+                        console.log("Mengunci tombol submit...");
+                        form.find('button[type="submit"]').prop('disabled', true).html('Menyimpan...');
                     },
                     success: function(response) {
+                        console.log("Respon berhasil diterima:", response);
                         $('#editModal').modal('hide');
                         iziToast.success({
                             title: 'Sukses',
@@ -155,10 +150,15 @@
                         reloadTable();
                     },
                     error: function(xhr) {
-                        $('#updateBtn').prop('disabled', false).html('Simpan Perubahan');
+                        console.log("Terjadi kesalahan saat mengirim AJAX:", xhr);
+                        form.find('button[type="submit"]').prop('disabled', false).html(
+                            'Simpan Perubahan');
+
                         if (xhr.status === 422) {
+                            console.log("Kesalahan validasi dari server:", xhr.responseJSON.errors);
                             handleValidationErrors(xhr.responseJSON.errors);
                         } else {
+                            console.log("Kesalahan sistem:", xhr.responseJSON.message);
                             iziToast.error({
                                 title: 'Error',
                                 message: xhr.responseJSON.message || 'Terjadi kesalahan sistem',
@@ -170,19 +170,43 @@
             }
 
             function validateForm() {
+
+            
                 let isValid = true;
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').remove();
 
+                console.log("Memeriksa validasi form...");
+
                 if ($('#edit_nama').val().trim() === '') {
+                    console.log("Validasi gagal: Nama kosong.");
                     showError($('#edit_nama'), 'Nama produk wajib diisi');
                     isValid = false;
                 }
+
+                if ($('#edit_min_stok').val().trim() === '' || $('#edit_min_stok').val() <= 0) {
+                    console.log("Validasi gagal: Minimal stok harus lebih dari 0.");
+                    showError($('#edit_min_stok'), 'Minimal stok harus lebih dari 0');
+                    isValid = false;
+                }
+
                 if ($('#edit_hpp').val().trim() === '' || $('#edit_hpp').val() <= 0) {
+                    console.log("Validasi gagal: HPP harus lebih dari 0.");
                     showError($('#edit_hpp'), 'HPP harus lebih dari 0');
                     isValid = false;
                 }
+
+                console.log("Validasi selesai, hasil:", isValid);
                 return isValid;
+            }
+
+            function handleValidationErrors(errors) {
+                console.log("Menangani kesalahan validasi...");
+                $.each(errors, function(field, messages) {
+                    console.log(`Kesalahan pada ${field}: ${messages[0]}`);
+                    var input = $('#' + field);
+                    showError(input, messages[0]);
+                });
             }
 
             function showError(input, message) {

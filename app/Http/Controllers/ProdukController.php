@@ -14,6 +14,7 @@ class ProdukController extends Controller
     {
         $produks = Produk::all();
         $kategoris = Katproduk::all();
+
         return view('produk.index', compact('produks','kategoris'));
     }
 
@@ -58,25 +59,19 @@ class ProdukController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Produk $produk)
     {
-        $produk = Produk::find($id);
-
-        if (!$produk) {
-            return response()->json(['error' => 'Produk tidak ditemukan'], 404);
-        }
-
         return response()->json([
-            'kode' => $produk->kode,
-            'nama' => $produk->nama,
+            'kode' => $produk->kode ?? '-',
+            'nama' => $produk->nama ?? '-',
             'kategori' => $produk->kategori ? $produk->kategori->nama : '-',
-            'tanggal_kadaluarsa' => $produk->tanggal_kadaluarsa,
-            'tanggal_pembelian' => $produk->tanggal_pembelian,
-            'hpp' => $produk->hpp,
-            'harga1' => $produk->harga1,
-            'harga2' => $produk->harga2,
-            'harga3' => $produk->harga3,
-            'stok' => $produk->stok,
+            'tanggal_kadaluarsa' => $produk->tanggal_kadaluarsa ?? '-',
+            'tanggal_pembelian' => $produk->tanggal_pembelian ?? '-',
+            'hpp' => $produk->hpp ?? '-',
+            'harga1' => $produk->harga1 ?? '-',
+            'harga2' => $produk->harga2 ?? '-',
+            'harga3' => $produk->harga3 ?? '-',
+            'stok' => $produk->stok ?? '-',
             'min_stok' => $produk->min_stok,
             'created_at' => $produk->created_at ? $produk->created_at->format('Y-m-d H:i:s') : '-',
             'creator'    => $produk->creator ? $produk->creator->username : '-',
@@ -85,24 +80,14 @@ class ProdukController extends Controller
         ]);
     }
 
-    public function edit($id)
+    public function edit(Produk $produk)
     {
-        $produk = Produk::find($id);
-        $kategoris = Katproduk::all();
-        
-        if (!$produk) {
-            return response()->json(['error' => 'Produk tidak ditemukan'], 404);
-        }
-        
         return response()->json($produk);
     }
 
-    public function update(Request $request, $id)
-    {
-        $produk = Produk::findOrFail($id);
-        
+    public function update(Request $request,Produk $produk)
+    {        
         $validator = Validator::make($request->all(), [
-            'kode' => 'required|unique:produks,kode,' . $id,
             'nama' => 'required',
             'kategori_id' => 'required|exists:katproduks,id',
             'hpp' => 'required|numeric|min:0',
@@ -121,7 +106,6 @@ class ProdukController extends Controller
         }
 
         $produk->update([
-            'kode' => $request->kode,
             'nama' => $request->nama,
             'kategori_id' => $request->kategori_id,
             'tanggal_kadaluarsa' => $request->tanggal_kadaluarsa,
@@ -154,5 +138,19 @@ class ProdukController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getNewKode()
+    {
+        $lastCategory = Produk::withTrashed()->latest()->first();
+    
+        if ($lastCategory) {
+            $number = intval(substr($lastCategory->kode, 3)) + 1;
+            $kodeTerbaru = 'PRD' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        } else {
+            $kodeTerbaru = 'PRD001';
+        }
+    
+        return response()->json(['kodeTerbaru' => $kodeTerbaru]);
     }
 }

@@ -3,7 +3,7 @@
         <tr>
             <th>No</th>
             <th>Nama</th>
-            <th>Tolepon</th>
+            <th>Telepon</th>
             <th>Alamat</th>
             <th>Tipe</th>
             <th>Poin</th>

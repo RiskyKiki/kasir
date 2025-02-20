@@ -10,7 +10,7 @@
     <div class="card">
         <div class="text-right mb-3">
             <button class="btn btn-success" data-toggle="modal" data-target="#createModal">
-                <i class="fas fa-plus"></i> Tambah Produk
+                <i class="fas fa-plus"></i>
             </button>
         </div>
         <div class="card-body">
@@ -46,7 +46,6 @@
         });
     });
 </script>
-
 <script>// Reload tabel & DataTable
     function reloadTable() {
         console.log('Memuat ulang tabel produk...');
@@ -68,11 +67,9 @@
         });
     }
 </script>
-
 <script>// Modal Show & Edit Produk
     function show(id) {
         console.log(`Menampilkan produk dengan ID: ${id}`);
-
         $.get('/produk/' + id, function(response) {
             console.log("Data produk berhasil diambil:", response);
             $('#show_kode').val(response.kode);
@@ -97,9 +94,7 @@
     }
 
     function edit(id) {
-        
         console.log(`Mengedit produk dengan ID: ${id}`);
-
         $.get('/produk/' + id + '/edit', function(response) {
             console.log("Data produk berhasil diambil:", response);
             const form = $('#editForm');
@@ -116,16 +111,15 @@
             $('#edit_tanggal_pembelian').val(response.tanggal_pembelian);
             $('#edit_tanggal_kadaluarsa').val(response.tanggal_kadaluarsa);
             $('#editModal').modal('show');
+            console.log("Modal ditampilkan.");
         }).fail(function(xhr) {
             console.log("Gagal mengambil data produk:", xhr);
         });
     }
 </script>
-
 <script>// Konfirmasi Hapus Produk
     function confirmDelete(id, deleteUrl) {
-        console.log(id, deleteUrl);
-
+        console.log(`Konfirmasi hapus pelanggan dengan ID: ${id}, URL: ${deleteUrl}`);
         swal({
             title: "Apakah Anda yakin?",
             text: "Setelah dihapus, data ini tidak bisa dikembalikan!",
@@ -135,6 +129,7 @@
         }).then((willDelete) => {
             console.log(willDelete);
             if (willDelete) {
+                console.log("Penghapusan dikonfirmasi. Mengirim permintaan AJAX...");
                 $.ajax({
                     url: deleteUrl,
                     type: 'POST',
@@ -142,32 +137,25 @@
                         _method: 'DELETE',
                         _token: "{{ csrf_token() }}"
                     },
+                    beforeSend: function(){
+                        console.log("Mengirim request penghapusan...");
+                    },
                     success: function(response) {
-                        console.log(response);
+                        console.log("Pelanggan berhasil dihapus:", response);
                         iziToast.success({title: 'Success', message: "Produk berhasil dihapus", position: 'topRight'});
                         reloadTable();
                     },
                     error: function(xhr) {
-                        console.log(xhr.responseText);
+                        console.log("Gagal menghapus pelanggan. Response:", xhr.responseText);
                         swal('Gagal!', 'Terjadi kesalahan saat menghapus data.', 'error');
+                        iziToast.error({title: 'Error', message: "Pelanggan gagal dihapus", position: 'topRight'})
                     }
                 });
+            } else {
+                console.log("Penghapusan dibatalkan.");
             }
         });
     }
 </script>
-
-<script>// Toast Notifikasi dari Controller
-    $(document).ready(function() {
-        @if (session('success'))
-            iziToast.success({title: 'Success', message: "{{ session('success') }}", position: 'topRight'});
-        @endif
-
-        @if (session('error'))
-            iziToast.error({title: 'Error', message: "{{ session('error') }}", position: 'topRight'});
-        @endif
-    });
-</script>
 @endpush
-
 @endsection

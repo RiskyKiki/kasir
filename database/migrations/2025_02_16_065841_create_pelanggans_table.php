@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->string('nama', 100);
             $table->string('telepon', 15)->nullable();
             $table->text('alamat')->nullable();
-            $table->enum('tipe', ['Umum', 'Loyal', 'VIP'])->default('Umum');
+            $table->enum('tipe', ['Perunggu', 'Perak', 'Emas'])->default('Perunggu');
             $table->integer('poin')->default(0)->nullable();
             $table->timestamps();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');

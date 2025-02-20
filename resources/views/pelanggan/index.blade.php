@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Customer')
+@section('title', 'Pelanggan')
 
-@section('subtitle', 'Customer Management')
+@section('subtitle', 'Pendataan Pelanggan')
 
 @section('content')
 
@@ -32,6 +32,7 @@
 @push('scripts')
 <script> //datatable
     $(document).ready(function() {
+        console.log("Inisialisasi DataTable...");
                 $('#myTable').DataTable({
                     "columnDefs": [
                         {"orderable": false, "targets": 5},
@@ -51,7 +52,9 @@
         console.log('Memuat ulang tabel pelanggan...');
         $("#TableContainer").load(location.href + " #TableContainer > *", function() {
             console.log('Tabel pelanggan telah diperbarui.');
+            console.log("Menghancurkan DataTable lama...");
                 $('#myTable').DataTable().destroy();
+                console.log("Menginisialisasi ulang DataTable...");
                 $('#myTable').DataTable({
                     "columnDefs": [
                         {"orderable": false, "targets": 5},
@@ -70,9 +73,9 @@
 <script>//modal edit&show
     function show(id) {
         console.log(`Menampilkan pelanggan dengan ID: ${id}`);
-
         $.get('/pelanggan/' + id, function(response) {
             console.log("Data pelanggan berhasil diambil:", response);
+            
             $('#show_nama').val(response.nama);
             $('#show_telepon').val(response.telepon);
             $('#show_alamat').val(response.alamat);
@@ -83,6 +86,7 @@
             $('#show_updated_at').val(response.updated_at);
             $('#show_updated_by').val(response.updater);
             $('#showModal').modal('show');
+            console.log("Modal  ditampilkan.");
         }).fail(function(xhr) {
             console.log("Gagal mengambil data pelanggan:", xhr);
         });
@@ -90,7 +94,6 @@
 
     function edit(id) {
         console.log(`Mengedit pelanggan dengan ID: ${id}`);
-
         $.get('/pelanggan/' + id + '/edit', function(response) {
             console.log("Data pelanggan berhasil diambil:", response);
             const form = $('#editForm');
@@ -101,6 +104,7 @@
             $('#edit_tipe').val(response.tipe);
             $('#edit_poin').val(response.poin);
             $('#editModal').modal('show');
+            console.log("Modal ditampilkan.");
         }).fail(function(xhr) {
             console.log("Gagal mengambil data pelanggan:", xhr);
         });
@@ -108,8 +112,7 @@
 </script>
 <script>//confirm delete
     function confirmDelete(id, deleteUrl) {
-        console.log(id, deleteUrl);
-
+        console.log(`Konfirmasi hapus pelanggan dengan ID: ${id}, URL: ${deleteUrl}`);
         swal({
             title: "Apakah Anda yakin?",
             text: "Setelah dihapus, data ini tidak bisa dikembalikan!",
@@ -118,6 +121,7 @@
             dangerMode: true,
         }).then((willDelete) => {
             if (willDelete) {
+                console.log("Penghapusan dikonfirmasi. Mengirim permintaan AJAX...");
                 $.ajax({
                     url: deleteUrl,
                     type: 'POST',
@@ -125,32 +129,25 @@
                         _method: 'DELETE',
                         _token: "{{ csrf_token() }}"
                     },
+                    beforeSend: function(){
+                        console.log("Mengirim request penghapusan...");
+                    },
                     success: function(response) {
-                        console.log(response); // Debugging response
+                        console.log("Pelanggan berhasil dihapus:", response);
                         reloadTable()
                         iziToast.success({title: 'Success', message: "Pelanggan berhasil dihapus", position: 'topRight'});
                     },
-                    error: function() {
-                        console.log(xhr.responseText);
+                    error: function(xhr) {
+                        console.log("Gagal menghapus pelanggan. Response:", xhr.responseText);
                         swal('Gagal!', 'Terjadi kesalahan saat menghapus data.', 'error');
-                        iziToast.error({title: 'Error', message: "Pelanggan gagl dihapus", position: 'topRight'})
+                        iziToast.error({title: 'Error', message: "Pelanggan gagal dihapus", position: 'topRight'})
                     }
                 });
+            } else {
+                console.log("Penghapusan dibatalkan.");
             }
         });
     }
 </script>
-<script>//toast dari controller
-    $(document).ready(function() {
-        @if (session('success'))
-            iziToast.success({title: 'Success', message: "{{ session('success') }}", position: 'topRight'});
-        @endif
-
-        @if (session('error'))
-            iziToast.error({title: 'Error', message: "{{ session('error') }}", position: 'topRight'});
-        @endif
-    });
-</script>
 @endpush
-
 @endsection

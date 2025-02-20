@@ -103,5 +103,6 @@ class UserController extends Controller
         $user->delete();
         return response()->json([
             'success' => 'User berhasil dihapus!'
-        ]);    }
+        ]);    
+    }
 }

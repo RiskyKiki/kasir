@@ -25,9 +25,9 @@
                             <div class="form-group">
                                 <label for="tipe">Tipe</label>
                                 <select class="form-control" id="tipe" name="tipe">
-                                    <option value="Umum" selected>Umum</option>
-                                    <option value="Loyal">Loyal</option>
-                                    <option value="VIP">VIP</option>
+                                    <option value="Perunggu" selected>Perunggu</option>
+                                    <option value="Perak">Perak</option>
+                                    <option value="Emas">Emas</option>
                                 </select>
                             </div>
                 </div>
@@ -43,29 +43,27 @@
 @push('scripts')
 <script>
   $(document).ready(function() {
-    // Reset form dan error ketika modal ditutup
+    console.log("Document ready");
     $('#createModal').on('hidden.bs.modal', function() {
+      console.log("Modal ditutup");
       $('#createForm').trigger('reset');
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
     });
-
-    // Tangani submit form menggunakan AJAX
     $('#createForm').submit(function(e) {
       e.preventDefault();
+      console.log("Form disubmit");
+
       var form = $(this);
-
-      // Lakukan validasi terlebih dahulu
-      if (!validateForm()) {
-        // Jika validasi gagal, showError akan dipanggil dan swal tidak muncul
-        return;
-      }
-
-      // Jika validasi sukses, ambil data form
       var formData = form.serialize();
       var url = form.attr('action');
 
-      // Tampilkan konfirmasi jika semua input sudah diisi
+      if (!validateForm()) {
+        console.log("Validasi form gagal");
+        return;
+      }
+
+      console.log("Mengirim konfirmasi swal");
       swal({
         title: "Konfirmasi",
         text: "Apakah data yang dimasukkan sudah benar?",
@@ -73,92 +71,88 @@
         buttons: true,
       }).then((confirm) => {
         if (confirm) {
+          console.log("Konfirmasi diterima, memproses form...");
           processFormSubmission(form, url, formData);
+        } else {
+          console.log("Konfirmasi dibatalkan");
         }
       });
     });
 
     function processFormSubmission(form, url, formData) {
+      console.log("Mengirim AJAX request ke:", url);
+      console.log("Data yang dikirim:", formData);
+
       $.ajax({
         url: url,
         method: 'POST',
         data: formData,
         beforeSend: function() {
+          console.log("Sebelum mengirim request...");
           form.find('button[type="submit"]').prop('disabled', true).html('Menyimpan...');
         },
         success: function(response) {
+          console.log("Response sukses:", response);
           $('#createModal').modal('hide');
-          iziToast.success({
-            title: 'Sukses',
-            message: response.success,
-            position: 'topRight'
-          });
-          // Panggil fungsi reload table atau refresh data sesuai kebutuhan
+          iziToast.success({title: 'Sukses', message: response.success, position: 'topRight'});
           reloadTable();
         },
         error: function(xhr) {
+          console.log("Response error:", xhr);
           form.find('button[type="submit"]').prop('disabled', false).html('Create');
           if (xhr.status === 422) {
+            console.log("Error validasi:", xhr.responseJSON.errors);
             handleValidationErrors(xhr.responseJSON.errors);
           } else {
-            iziToast.error({
-              title: 'Error',
-              message: xhr.responseJSON.message || 'Terjadi kesalahan sistem',
-              position: 'topRight'
-            });
+            console.log("Terjadi kesalahan sistem");
+            iziToast.error({title: 'Error', message: xhr.responseJSON.message || 'Terjadi kesalahan sistem', position: 'topRight'});
           }
         }
       });
     }
 
-    // Validasi sederhana untuk form pelanggan
     function validateForm() {
       var isValid = true;
-      // Reset error state
+      console.log("Memvalidasi form...");
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
 
       if ($('#nama').val().trim() === '') {
-        iziToast.error({
-              title: 'Error',
-              message: 'Nama wajib diisi',
-              position: 'topRight'
-            });
+        console.log("Error: Nama wajib diisi");
+        iziToast.error({title: 'Error', message: 'Nama wajib diisi', position: 'topRight'});
         showError($('#nama'), 'Nama wajib diisi');
         isValid = false;
       }
-      if ($('#telepon').val().trim() === '') {
-        iziToast.error({
-              title: 'Error',
-              message: 'Telepon wajib diisi',
-              position: 'topRight'
-            });
-        showError($('#telepon'), 'Telepon wajib diisi');
+      if ($('#telepon').val().trim() < 8) {
+        console.log("Error: Nomor telepon minimal 8 digit");
+        iziToast.error({title: 'Error', message: 'Nomor telepon minimal 8 digit', position: 'topRight'});
+        showError($('#telepon'), 'Nomor telepon minimal 8 digit');
         isValid = false;
       }
       if ($('#alamat').val().trim() === '') {
-        iziToast.error({
-              title: 'Error',
-              message: 'Alamat wajib diisi',
-              position: 'topRight'
-            });
+        console.log("Error: Alamat wajib diisi");
+        iziToast.error({title: 'Error', message: 'Alamat wajib diisi', position: 'topRight'});
         showError($('#alamat'), 'Alamat wajib diisi');
         isValid = false;
       }
+
+      console.log("Validasi selesai, hasil:", isValid);
       return isValid;
     }
 
     function handleValidationErrors(errors) {
+      console.log("Menangani error validasi...");
       for (var field in errors) {
         var input = $('#' + field);
+        console.log("Error pada:", field, "Pesan:", errors[field][0]);
         showError(input, errors[field][0]);
       }
     }
 
     function showError(input, message) {
+      console.log("Menampilkan error pada input:", input.attr('id'), "Pesan:", message);
       input.addClass('is-invalid');
       input.after('<div class="invalid-feedback d-block">' + message + '</div>');
-      // Scroll ke error pertama
       $('html, body').animate({
         scrollTop: input.offset().top - 100
       }, 500);

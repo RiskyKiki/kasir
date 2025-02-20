@@ -26,9 +26,9 @@
             <div class="form-group">
               <label for="edit_tipe">Tipe</label>
               <select class="form-control" id="edit_tipe" name="tipe">
-                <option value="Umum">Umum</option>
-                <option value="Loyal">Loyal</option>
-                <option value="VIP">VIP</option>
+                <option value="Perunggu">Perunggu</option>
+                <option value="Perak">Perak</option>
+                <option value="Emas">Emas</option>
               </select>
             </div>
         </div>
@@ -44,26 +44,27 @@
   @push('scripts')
   <script>
   $(document).ready(function() {
-    // Reset form dan error saat modal ditutup
+    console.log("Script edit pelanggan dimuat...");
     $('#editModal').on('hidden.bs.modal', function() {
+      console.log("Modal edit ditutup. Mereset form...");
       $('#editForm').trigger('reset');
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
     });
-  
-    // Tangani submit form edit
+
     $('#editForm').submit(function(e) {
       e.preventDefault();
       var form = $(this);
-  
-      // Validasi form terlebih dahulu
+      var url = form.attr('action');
+      var formData = form.serialize();
+
+      console.log("Mengirim form edit dengan data:", formData);
+
       if (!validateForm()) {
+        console.log("Validasi form gagal, pengiriman dibatalkan.");
         return;
       }
-  
-      var formData = form.serialize();
-      var url = form.attr('action');
-  
+
       swal({
         title: "Konfirmasi",
         text: "Apakah Anda yakin ingin menyimpan perubahan?",
@@ -72,80 +73,90 @@
         dangerMode: true,
       }).then((confirm) => {
         if (confirm) {
+          console.log("Konfirmasi diterima, mengirim data...");
           submitEditForm(form, url, formData);
+        } else {
+          console.log("Pengeditan dibatalkan oleh pengguna.");
         }
       });
     });
-  
+
     function submitEditForm(form, url, formData) {
+      console.log(`Mengirim AJAX request ke: ${url}`);
       $.ajax({
         url: url,
         method: 'POST',
         data: formData,
         beforeSend: function() {
+          console.log("Mengunci tombol submit...");
           form.find('button[type="submit"]').prop('disabled', true).html('Menyimpan...');
         },
         success: function(response) {
+          console.log("Respon berhasil diterima:", response);
           $('#editModal').modal('hide');
-          iziToast.success({
-            title: 'Sukses',
-            message: response.success,
-            position: 'topRight'
-          });
-          // Panggil fungsi reload tabel atau refresh data sesuai kebutuhan, misal:
+          iziToast.success({title: 'Sukses', message: response.success, position: 'topRight'});
           reloadTable();
         },
         error: function(xhr) {
+          console.log("Terjadi kesalahan saat mengirim AJAX:", xhr);
           form.find('button[type="submit"]').prop('disabled', false).html('Simpan Perubahan');
+
           if (xhr.status === 422) {
+            console.log("Kesalahan validasi dari server:", xhr.responseJSON.errors);
             handleValidationErrors(xhr.responseJSON.errors);
           } else {
-            iziToast.error({
-              title: 'Error',
-              message: xhr.responseJSON.message || 'Terjadi kesalahan sistem',
-              position: 'topRight'
-            });
+            console.log("Kesalahan sistem:", xhr.responseJSON.message);
+            iziToast.error({title: 'Error', message: xhr.responseJSON.message || 'Terjadi kesalahan sistem', position: 'topRight'});
           }
         }
       });
     }
-  
+
     function validateForm() {
       var isValid = true;
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').remove();
-  
+
+      console.log("Memeriksa validasi form...");
+
       if ($('#edit_nama').val().trim() === '') {
+        console.log("Validasi gagal: Nama kosong.");
+        iziToast.error({title: 'Error', message: 'Nama wajib diisi', position: 'topRight'});
         showError($('#edit_nama'), 'Nama wajib diisi');
         isValid = false;
       }
-      if ($('#edit_telepon').val().trim() === '') {
-        showError($('#edit_telepon'), 'Telepon wajib diisi');
+
+      if ($('#edit_telepon').val().trim().length < 8) {
+        console.log("Validasi gagal: Nomor telepon kurang dari 8 digit.");
+        iziToast.error({title: 'Error', message: 'Nomor telepon minimal 8 digit', position: 'topRight'});
+        showError($('#edit_telepon'), 'Nomor telepon minimal 8 digit');
         isValid = false;
       }
+
       if ($('#edit_alamat').val().trim() === '') {
+        console.log("Validasi gagal: Alamat kosong.");
+        iziToast.error({title: 'Error', message: 'Alamat wajib diisi', position: 'topRight'});
         showError($('#edit_alamat'), 'Alamat wajib diisi');
         isValid = false;
       }
-      if ($('#edit_tipe').val().trim() === '') {
-        showError($('#edit_tipe'), 'Tipe wajib diisi');
-        isValid = false;
-      }
+
+      console.log("Validasi selesai, hasil:", isValid);
       return isValid;
     }
-  
+
     function handleValidationErrors(errors) {
+      console.log("Menangani kesalahan validasi...");
       $.each(errors, function(field, messages) {
+        console.log(`Kesalahan pada ${field}: ${messages[0]}`);
         var input = $('#' + field);
         showError(input, messages[0]);
       });
     }
-  
+
     function showError(input, message) {
       input.addClass('is-invalid');
       input.after('<div class="invalid-feedback d-block">' + message + '</div>');
     }
   });
   </script>
-  @endpush
-  
+@endpush

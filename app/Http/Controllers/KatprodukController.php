@@ -12,8 +12,10 @@ class KatprodukController extends Controller
     public function index()
     {
         $katproduks = Katproduk::all();
+
         return view('katproduk.index', compact('katproduks'));
     }
+
 
     public function store(Request $request)
     {
@@ -40,41 +42,27 @@ class KatprodukController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Katproduk $kategori)
     {
-        $katproduk = Katproduk::find($id);
-
-        if (!$katproduk) {
-            return response()->json(['error' => 'Kategori tidak ditemukan'], 404);
-        }
         return response()->json([
-            'id'         => $katproduk->id,
-            'kode'       => $katproduk->kode ?? '-',
-            'nama'       => $katproduk->nama ?? '-',
-            'created_at' => $katproduk->created_at ? $katproduk->created_at->format('Y-m-d H:i:s') : '-',
-            'creator'    => $katproduk->creator ? $katproduk->creator->username : '-',
-            'updated_at' => $katproduk->updated_at ? $katproduk->updated_at->format('Y-m-d H:i:s') : '-',
-            'updater'    => $katproduk->updater ? $katproduk->updater->username : '-',
+            'kode'       => $kategori->kode ?? '-',
+            'nama'       => $kategori->nama ?? '-',
+            'created_at' => $kategori->created_at ? $kategori->created_at->format('Y-m-d H:i:s') : '-',
+            'creator'    => $kategori->creator ? $kategori->creator->username : '-',
+            'updated_at' => $kategori->updated_at ? $kategori->updated_at->format('Y-m-d H:i:s') : '-',
+            'updater'    => $kategori->updater ? $kategori->updater->username : '-',
         ]);
     }
 
-    public function edit($id)
+
+    public function edit(Katproduk $kategori)
     {
-        $katproduk = Katproduk::find($id);
-        
-        if (!$katproduk) {
-            return response()->json(['error' => 'Kategori tidak ditemukan'], 404);
-        }
-        
-        return response()->json($katproduk);
+        return response()->json($kategori);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Katproduk $kategori)
     {
-        $katproduk = Katproduk::findOrFail($id);
-        
         $validator = Validator::make($request->all(), [
-            'kode' => 'required|unique:katproduks,kode,' . $id,
             'nama' => 'required',
         ]);
 
@@ -85,8 +73,7 @@ class KatprodukController extends Controller
             ], 422);
         }
 
-        $katproduk->update([
-            'kode'       => $request->kode,
+        $kategori->update([
             'nama'       => $request->nama,
             'updated_by' => Auth::id(),
         ]);
@@ -111,4 +98,19 @@ class KatprodukController extends Controller
             ], 500);
         }
     }
+
+    public function getNewKode()
+    {
+        $lastCategory = Katproduk::withTrashed()->latest()->first();
+    
+        if ($lastCategory) {
+            $number = intval(substr($lastCategory->kode, 3)) + 1;
+            $kodeTerbaru = 'CAT' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        } else {
+            $kodeTerbaru = 'CAT001';
+        }
+    
+        return response()->json(['kodeTerbaru' => $kodeTerbaru]);
+    }
+    
 }

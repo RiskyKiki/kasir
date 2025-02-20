@@ -16,14 +16,22 @@ class AuthController extends Controller
     {
         // Validasi input
         $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required'
         ]);
 
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user(); // Ambil user yang sedang login
             $request->session()->regenerate();
+
+            // Catat aktivitas login
+            activity()
+                ->causedBy($user)
+                ->withProperties(['email' => $user->email])
+                ->log('User berhasil login');
+
             return redirect()->route('dashboard')->with('success', 'Login berhasil!');
         }
 
@@ -32,6 +40,18 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        // Ambil user sebelum logout (karena setelah logout, Auth::user() sudah null)
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Catat aktivitas logout jika user tersedia
+        if ($user) {
+            activity()
+                ->causedBy($user)
+                ->withProperties(['email' => $user->email])
+                ->log('User berhasil logout');
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

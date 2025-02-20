@@ -16,7 +16,9 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
         body {
-            background: url('{{ asset('img/avatar/avatar-1.png') }}');
+            background: url('{{ asset('img/Background1.png') }}');
+            background-repeat: no-repeat;
+            background-size: cover;
         }
     </style>
 </head>

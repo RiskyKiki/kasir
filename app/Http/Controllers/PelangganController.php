@@ -21,7 +21,7 @@ class PelangganController extends Controller
             'nama'    => 'required|string|max:100',
             'telepon' => 'nullable|string|max:15',
             'alamat'  => 'nullable|string',
-            'tipe'    => 'required|in:Umum,Loyal,VIP',
+            'tipe'    => 'required|in:Perunggu,Perak,Emas',
         ]);
 
         if ($validator->fails()) {
@@ -48,7 +48,6 @@ class PelangganController extends Controller
     public function show(Pelanggan $pelanggan)
     {
         return response()->json([
-            'id'         => $pelanggan->id,
             'nama'       => $pelanggan->nama ?? '-',
             'telepon'    => $pelanggan->telepon ?? '-',
             'alamat'     => $pelanggan->alamat ?? '-',
@@ -72,7 +71,7 @@ class PelangganController extends Controller
             'nama'    => 'required|string|max:100',
             'telepon' => 'nullable|string|max:15',
             'alamat'  => 'nullable|string',
-            'tipe'    => 'required|in:Umum,Loyal,VIP',
+            'tipe'    => 'required|in:Perunggu,Perak,Emas',
         ]);
 
         if ($validator->fails()) {

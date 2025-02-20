@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
             'role'       => 'admin',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+            'created_by' => 1,
+            'updated_by' => 1,
         ]);
 
         User::create([
@@ -35,37 +37,45 @@ class DatabaseSeeder extends Seeder
             'role'       => 'petugas',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+            'created_by' => 1,
+            'updated_by' => 1,
         ]);
 
         Pelanggan::create([
             'nama'       => 'pelanggan1',
             'telepon'    => '123456789',
             'alamat'     => 'disuatu tempat',
-            'tipe'       => 'Umum',
+            'tipe'       => 'Perunggu',
             'poin'       => '0',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+            'created_by' => 1,
+            'updated_by' => 1,
         ]);
 
         Pelanggan::create([
             'nama'       => '1naggnalap',
             'telepon'    => '987654321',
             'alamat'     => 'tapmet utausid',
-            'tipe'       => 'Loyal',
+            'tipe'       => 'Perak',
             'poin'       => '0',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+            'created_by' => 1,
+            'updated_by' => 1,
         ]);
 
         Katproduk::create([
-            'kode'       => 'CAT-001',
+            'kode'       => 'CAT001',
             'nama'       => 'Mie instan',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+            'created_by' => 1,
+            'updated_by' => 1,
         ]);
 
         Produk::create([
-            'kode'              => 'PRD-001',
+            'kode'              => 'PRD001',
             'nama'              => 'Mie Goreng',
             'kategori_id'       => 1,
             'tanggal_kadaluarsa' => '2026-12-31',
@@ -78,6 +88,8 @@ class DatabaseSeeder extends Seeder
             'min_stok'          => 10,
             'created_at'        => Carbon::now(),
             'updated_at'        => Carbon::now(),
+            'created_by' => 1,
+            'updated_by' => 1,
         ]);
     }
 }
