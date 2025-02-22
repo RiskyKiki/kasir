@@ -26,7 +26,7 @@ class KasirController extends Controller
     {
         // Validasi input
         $request->validate([
-            'pelanggan_id'      => 'required|exists:pelanggans,id',
+            'pelanggan_id' => 'nullable|exists:pelanggans,id',
             'items'             => 'required|array',
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.jumlah'    => 'required|integer|min:1',
@@ -67,7 +67,7 @@ class KasirController extends Controller
 
             // Simpan data header transaksi
             $transaksi = Transaksi::create([
-                'pelanggan_id'      => $request->pelanggan_id,
+                'pelanggan_id'      => $request->pelanggan_id ?: null,
                 'user_id'           => Auth::user()->id,
                 'tanggal_transaksi' => Carbon::now(),
                 'subtotal'          => $subtotal,
@@ -126,6 +126,6 @@ class KasirController extends Controller
         $pdf = app('dompdf.wrapper')->loadView('invoice-pdf', compact('transaksi'));
         
         // Download file PDF dengan nama file sesuai ID transaksi
-        return $pdf->download('invoice_' . $transaksi->id . '.pdf');
+        return $pdf->stream('invoice_' . $transaksi->id . '.pdf');
     }
 }
