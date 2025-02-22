@@ -55,6 +55,16 @@
         </div>
     </div>
 
+    <!-- Grafik Jumlah Transaksi Mingguan -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h4>Grafik Jumlah Transaksi Mingguan</h4>
+        </div>
+        <div class="card-body">
+            <canvas id="chartJumlahTransaksi" height="150"></canvas>
+        </div>
+    </div>
+
     <!-- Daftar Produk Hampir Habis -->
     <div class="card mb-4">
         <div class="card-header bg-warning text-dark">
@@ -167,10 +177,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Grafik Penjualan Mingguan
     var ctx = document.getElementById('chartPenjualan').getContext('2d');
     var penjualanData = @json($penjualanMingguan);
-
-    // Ekstrak label dan data
     var labels = penjualanData.map(function(item) {
         return item.tanggal;
     });
@@ -193,6 +202,43 @@ document.addEventListener('DOMContentLoaded', function () {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+        }
+    });
+
+    // Grafik Jumlah Transaksi Mingguan
+    var ctx2 = document.getElementById('chartJumlahTransaksi').getContext('2d');
+    var transaksiData = @json($jumlahTransaksiMingguan);
+    var labels2 = transaksiData.map(function(item) {
+        return item.tanggal;
+    });
+    var data2 = transaksiData.map(function(item) {
+        return item.count;
+    });
+
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: labels2,
+            datasets: [{
+                label: 'Jumlah Transaksi',
+                data: data2,
+                backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
         }
     });
 });

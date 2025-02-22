@@ -16,7 +16,7 @@ class DashboardController extends Controller
         // Ringkasan Penjualan
         $totalHariIni = Transaksi::whereDate('tanggal_transaksi', Carbon::today())->sum('total');
         $totalMingguIni = Transaksi::whereBetween('tanggal_transaksi', [
-            Carbon::now()->startOfWeek(), 
+            Carbon::now()->startOfWeek(),
             Carbon::now()->endOfWeek()
         ])->sum('total');
         $totalBulanIni = Transaksi::whereMonth('tanggal_transaksi', Carbon::now()->month)
@@ -26,11 +26,24 @@ class DashboardController extends Controller
 
         // Grafik Penjualan Mingguan (7 hari terakhir)
         $penjualanMingguan = Transaksi::select(
-                DB::raw("DATE(tanggal_transaksi) as tanggal"),
-                DB::raw("SUM(total) as total")
-            )
+            DB::raw("DATE(tanggal_transaksi) as tanggal"),
+            DB::raw("SUM(total) as total")
+        )
             ->whereBetween('tanggal_transaksi', [
-                Carbon::now()->subDays(7), 
+                Carbon::now()->subDays(7),
+                Carbon::now()
+            ])
+            ->groupBy(DB::raw("DATE(tanggal_transaksi)"))
+            ->orderBy('tanggal', 'ASC')
+            ->get();
+
+        // Grafik Jumlah Transaksi Mingguan
+        $jumlahTransaksiMingguan = Transaksi::select(
+            DB::raw("DATE(tanggal_transaksi) as tanggal"),
+            DB::raw("COUNT(*) as count")
+        )
+            ->whereBetween('tanggal_transaksi', [
+                Carbon::now()->subDays(7),
                 Carbon::now()
             ])
             ->groupBy(DB::raw("DATE(tanggal_transaksi)"))
@@ -58,6 +71,7 @@ class DashboardController extends Controller
             'totalBulanIni',
             'jumlahTransaksiHariIni',
             'penjualanMingguan',
+            'jumlahTransaksiMingguan',
             'produkHampirHabis',
             'transaksiTerbaru',
             'pelangganPerunggu',

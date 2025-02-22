@@ -9,8 +9,8 @@ class ActivityLogController extends Controller
 {
     public function index()
     {
-        $activities = Activity::all();
-        
+        $activities = Activity::orderBy('created_at', 'desc')->get();
+
         return view('activity_logs.index', compact('activities'));
     }
 }

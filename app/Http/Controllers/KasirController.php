@@ -95,10 +95,12 @@ class KasirController extends Controller
                 $produk->stok -= $item['jumlah'];
                 $produk->save();
             }
-            // Ambil data pelanggan berdasarkan ID
-            $pelanggan = Pelanggan::findOrFail($request->pelanggan_id);
-            $pelanggan->poin = ($pelanggan->poin + $poin_didapat) - $poin_digunakan;
-            $pelanggan->save();
+            // Update data pelanggan jika pelanggan_id ada
+            if ($request->pelanggan_id) {
+                $pelanggan = Pelanggan::findOrFail($request->pelanggan_id);
+                $pelanggan->poin = ($pelanggan->poin + $poin_didapat) - $poin_digunakan;
+                $pelanggan->save();
+            }
 
             DB::commit();
 
@@ -120,11 +122,11 @@ class KasirController extends Controller
     {
         // Ambil data transaksi beserta relasinya
         $transaksi = Transaksi::with(['detailTransaksi.produk', 'pelanggan', 'user'])->findOrFail($id);
-        
+
         // Render view khusus PDF (invoice-pdf.blade.php)
         // $pdf = PDF::loadView('invoice-pdf', compact('transaksi'));
         $pdf = app('dompdf.wrapper')->loadView('invoice-pdf', compact('transaksi'));
-        
+
         // Download file PDF dengan nama file sesuai ID transaksi
         return $pdf->stream('invoice_' . $transaksi->id . '.pdf');
     }

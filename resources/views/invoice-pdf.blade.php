@@ -37,8 +37,8 @@
             </div>
             <div class="text-right">
                 <p>Pelanggan: {{ $transaksi->pelanggan->nama ?? 'Umum' }}</p>
-                <p>Nomor Telepon: {{ $transaksi->pelanggan->telepon }}</p>
-                <p>Alamat: {{ $transaksi->pelanggan->alamat }}</p>
+                <p>Nomor Telepon: {{ $transaksi->pelanggan->telepon ?? '-' }}</p>
+                <p>Alamat: {{ $transaksi->pelanggan->alamat ?? '-' }}</p>
             </div>
         </div>
         <div class="invoice-details">

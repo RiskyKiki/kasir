@@ -10,7 +10,6 @@
         <thead>
             <tr>
                 <th>No</th>
-                <th>ID</th>
                 <th>Nama</th>
                 <th>Deskripsi</th>
                 <th>Properti</th>
@@ -22,7 +21,6 @@
             @foreach($activities as $index => $activity)
             <tr>
                 <td>{{ $index + 1 }}</td>
-                <td>{{ $activity->id }}</td>
                 <td>{{ $activity->log_name }}</td>
                 <td>{{ $activity->description }}</td>
                 <td>{{ json_encode($activity->properties->toArray()) }}</td>
@@ -42,7 +40,7 @@
                 $('#myTable').DataTable({
                     "autoWidth": false,
                     "columnDefs": [
-                        {"targets": [1, 2, 3, 4, 5, 6]},
+                        {"targets": [1, 2, 3, 4, 5]},
                         { "width": "5px", "targets": 0 },
                         { "width": "5px", "targets": 1 },
                         { "width": "10px", "targets": 2 },

@@ -20,8 +20,8 @@
             </div>
             <div class="text-right">
                 Pelanggan: {{ $transaksi->pelanggan->nama ?? 'Umum' }} <br>
-                Nomor Telepon: {{ $transaksi->pelanggan->telepon }} <br>
-                Alamat: {{ $transaksi->pelanggan->alamat }} <br>
+                Nomor Telepon: {{ $transaksi->pelanggan->telepon ?? '-' }} <br>
+                Alamat: {{ $transaksi->pelanggan->alamat ?? '-'}} <br>
             </div>
         </div>
           <div class="card-body">
@@ -57,7 +57,7 @@
       </div>
       <div class="mt-4 text-right">
           <a href="{{ route('kasir.index') }}" class="btn btn-primary">Kembali ke Menu Kasir</a>
-          <a href="{{ route('invoice.print', $transaksi->id) }}" class="btn btn-info">Cetak PDF</a>
+          <a href="{{ route('invoice.print', $transaksi->id) }}" class="btn btn-info" target="_blank">Cetak PDF</a>
         </div>
     </div>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

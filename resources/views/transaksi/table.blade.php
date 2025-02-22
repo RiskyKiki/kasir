@@ -14,7 +14,7 @@
         @forelse ($transaksis as $index => $transaksi)
         <tr>
             <td>{{ $index + 1 }}</td>
-            <td>{{ $transaksi->pelanggan->nama ?? '-' }}</td>
+            <td>{{ $transaksi->pelanggan->nama ?? 'Umum' }}</td>
             <td>{{ $transaksi->user->username ?? '-' }}</td>
             <td>{{ $transaksi->tanggal_transaksi ?? '-' }}</td>
             <td>Rp{{ number_format($transaksi->subtotal, 2, ',', '.')}}</td>

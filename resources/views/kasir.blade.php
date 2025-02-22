@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaksi Penjualan</title>
-    {{-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> --}}
     <link rel="stylesheet" href="{{ asset('modules/bootstrap/css/bootstrap.min.css') }}">
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('modules/fontawesome/css/all.min.css') }}">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <style>
         .custom-bg {
             background-color: #6777ef;
@@ -130,22 +131,30 @@
                         <input type="text" id="kembalian" class="form-control" readonly>
                     </div>
                     <button id="simpanTransaksiBtn" class="btn btn-primary btn-block"
-                        onclick="simpanTransaksi()">Simpan
-                        Transaksi</button>
+                        onclick="simpanTransaksi()">Simpan Transaksi</button>
                 </div>
             </div>
         </div>
 
         <!-- Library JS -->
-        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="{{ asset('modules/jquery.min.js') }}"></script>
+        <script src="{{ asset('modules/popper.js') }}"></script>
+        <script src="{{ asset('modules/bootstrap/js/bootstrap.min.js') }}"></script>
         <!-- SweetAlert2 JS -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+        <!-- Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         <script>
+            // Inisialisasi select2 untuk dropdown
+            $(document).ready(function() {
+                $('#pilihPelanggan').select2();
+                $('#pilihProduk').select2();
+            });
+
             let transaksi = [];
             let removedOptions = {};
+
             // Tambahkan produk ke daftar transaksi
             function tambahProduk() {
                 let pelanggan = document.getElementById("pilihPelanggan");
@@ -167,6 +176,7 @@
                     harga = parseFloat(selected.getAttribute("data-harga3"));
                 }
 
+                // Tambahkan properti stok agar bisa dipakai untuk validasi jumlah
                 let produkData = {
                     produk_id: selected.value,
                     nama: selected.text,
@@ -176,13 +186,18 @@
                     hpp: parseFloat(selected.getAttribute("data-hpp")),
                     harga1: parseFloat(selected.getAttribute("data-harga1")),
                     harga2: parseFloat(selected.getAttribute("data-harga2")),
-                    harga3: parseFloat(selected.getAttribute("data-harga3"))
+                    harga3: parseFloat(selected.getAttribute("data-harga3")),
+                    stok: parseInt(selected.getAttribute("data-stok"))
                 };
 
                 transaksi.push(produkData);
+                // Simpan elemen option yang dihapus agar nanti bisa dikembalikan
                 removedOptions[selected.value] = selected;
                 produk.remove(produk.selectedIndex);
+                // Refresh select2 setelah menghapus option
+                $('#pilihProduk').trigger('change');
                 renderTable();
+                // Set ulang dropdown ke opsi default
                 produk.selectedIndex = 0;
             }
 
@@ -194,7 +209,7 @@
 
                 document.getElementById("poinDimiliki").value = selected.value ? selected.getAttribute("data-poin") : 0;
 
-                // Rekalkulasi harga produk berdasarkan tipe pelanggan baru menggunakan data yang disimpan di transaksi
+                // Rekalkulasi harga produk berdasarkan tipe pelanggan baru
                 transaksi.forEach((item) => {
                     let newPrice = 0;
                     if (!tipePelanggan) {
@@ -293,101 +308,100 @@
 
             // Simpan transaksi melalui AJAX dengan konfirmasi SweetAlert
             function simpanTransaksi() {
-  // Validasi: cek apakah pelanggan sudah dipilih
-  let pelangganId = document.getElementById("pilihPelanggan").value;
-  if (!pelangganId) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Pelanggan Belum Dipilih',
-      text: 'Silakan pilih pelanggan terlebih dahulu sebelum menyimpan transaksi'
-    });
-    return;
-  }
+                // Ambil nilai pelanggan, jika tidak ada, kita biarkan null (atau string kosong)
+                let pelangganId = document.getElementById("pilihPelanggan").value;
+                // Validasi di sini tidak lagi memblokir transaksi bila pelanggan belum dipilih
+                // (karena pada validasi di sisi server, pelanggan_id bersifat nullable)
 
-  Swal.fire({
-    title: 'Konfirmasi Transaksi',
-    text: 'Apakah Anda yakin untuk menyimpan transaksi ini?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Simpan',
-    cancelButtonText: 'Batal'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      let dataTransaksi = {
-        pelanggan_id: pelangganId,
-        items: transaksi,
-        poin_digunakan: parseFloat(document.getElementById("poinDigunakan").value) || 0,
-        pembayaran: parseFloat(document.getElementById("pembayaran").value) || 0,
-        subtotal: parseFloat(document.getElementById("subtotalKeseluruhanVal").value),
-        diskon: parseFloat(document.getElementById("diskonVal").value),
-        pajak: parseFloat(document.getElementById("pajakVal").value),
-        total: parseFloat(document.getElementById("totalAkhirVal").value)
-      };
+                Swal.fire({
+                    title: 'Konfirmasi Transaksi',
+                    text: 'Apakah Anda yakin untuk menyimpan transaksi ini?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Simpan',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let dataTransaksi = {
+                            pelanggan_id: pelangganId || null,
+                            items: transaksi,
+                            poin_digunakan: parseFloat(document.getElementById("poinDigunakan").value) || 0,
+                            pembayaran: parseFloat(document.getElementById("pembayaran").value) || 0,
+                            subtotal: parseFloat(document.getElementById("subtotalKeseluruhanVal").value),
+                            diskon: parseFloat(document.getElementById("diskonVal").value),
+                            pajak: parseFloat(document.getElementById("pajakVal").value),
+                            total: parseFloat(document.getElementById("totalAkhirVal").value)
+                        };
 
-      let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-      fetch("{{ route('kasir.store') }}", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-          },
-          body: JSON.stringify(dataTransaksi)
-        })
-        .then(response => {
-          if (!response.ok) {
-            return response.text().then(text => {
-              throw new Error(text);
-            });
-          }
-          return response.json();
-        })
-        .then(result => {
-          Swal.fire({
-            title: 'Berhasil!',
-            text: 'Transaksi berhasil disimpan.',
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false
-          });
-          // Redirect ke invoice setelah 2 detik
-          setTimeout(() => {
-            window.location.href = result.redirect_url;
-          }, 2000);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-          Swal.fire('Error', 'Terjadi kesalahan saat menyimpan transaksi', 'error');
-        });
-    }
-  });
-}
+                        fetch("{{ route('kasir.store') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken
+                                },
+                                body: JSON.stringify(dataTransaksi)
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.text().then(text => {
+                                        throw new Error(text);
+                                    });
+                                }
+                                return response.json();
+                            })
+                            .then(result => {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Transaksi berhasil disimpan.',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                // Redirect ke invoice setelah 2 detik
+                                setTimeout(() => {
+                                    window.location.href = result.redirect_url;
+                                }, 2000);
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                Swal.fire('Error', 'Terjadi kesalahan saat menyimpan transaksi', 'error');
+                            });
+                    }
+                });
+            }
 
 
             // Ubah jumlah produk dan validasi stok
             function ubahJumlah(index, jumlah) {
                 jumlah = parseInt(jumlah);
-
-                let optionEl = document.querySelector(`#pilihProduk option[value="${transaksi[index].produk_id}"]`);
-                if (optionEl) {
-                    let stok = parseInt(optionEl.getAttribute("data-stok"));
-                    if (jumlah > stok) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Stok Tidak Mencukupi',
-                            text: `Stok yang tersedia untuk ${transaksi[index].nama} hanya ${stok} unit.`,
-                        });
-                        jumlah = stok;
-                    }
+                let availableStock = transaksi[index].stok; // Menggunakan nilai stok yang tersimpan
+                if (jumlah > availableStock) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Stok Tidak Mencukupi',
+                        text: `Stok yang tersedia untuk ${transaksi[index].nama} hanya ${availableStock} unit.`,
+                    });
+                    jumlah = availableStock;
                 }
-
                 transaksi[index].jumlah = jumlah;
                 transaksi[index].subtotal = transaksi[index].harga * jumlah;
                 renderTable();
             }
 
-            // Hapus item dari transaksi
+            // Hapus item dari transaksi dan kembalikan option ke dropdown
             function hapusItem(index) {
+                let item = transaksi[index];
+                // Dapatkan elemen option yang sebelumnya disimpan di removedOptions
+                if (removedOptions[item.produk_id]) {
+                    let selectProduk = document.getElementById("pilihProduk");
+                    selectProduk.appendChild(removedOptions[item.produk_id]);
+                    // Perbarui Select2 untuk merefresh dropdown
+                    $('#pilihProduk').trigger('change');
+                    // Hapus option dari removedOptions
+                    delete removedOptions[item.produk_id];
+                }
                 transaksi.splice(index, 1);
                 renderTable();
             }
@@ -402,8 +416,14 @@
             }
 
             // Event listener untuk perubahan pelanggan dan produk
-            document.getElementById("pilihPelanggan").addEventListener("change", updatePelanggan);
-            document.getElementById("pilihProduk").addEventListener("change", tambahProduk);
+            // document.getElementById("pilihPelanggan").addEventListener("change", updatePelanggan);
+            $("#pilihPelanggan").on("select2:select", function(e) {
+                updatePelanggan();
+            });
+            //   document.getElementById("pilihProduk").addEventListener("change", tambahProduk);
+            $("#pilihProduk").on("select2:select", function(e) {
+                tambahProduk();
+            });
         </script>
     </div>
 </body>
